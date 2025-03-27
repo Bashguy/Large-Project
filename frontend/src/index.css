@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@keyframes bounceLeftRight {
+    0%, 100% {
+        transform: translateX(-20px);
+    }
+    50% {
+        transform: translateX(20px);
+    }
+}
+
+.animate-bounce-left-right {
+    animation: bounceLeftRight 1s ease-in-out infinite;
+}

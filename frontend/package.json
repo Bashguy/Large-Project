@@ -13,6 +13,8 @@
     "@tailwindcss/vite": "^4.0.14",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-parallax-tilt": "^1.7.287",
+    "react-router-dom": "^7.4.0",
     "tailwindcss": "^4.0.14"
   },
   "devDependencies": {
