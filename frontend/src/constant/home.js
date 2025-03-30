@@ -5,9 +5,9 @@ import tradeImage from '../assets/swap.svg';
 import battleImage from '../assets/death.svg';
 
 export const HomeInfo = [
-    ["Gacha", cardImage, "bg-indigo-500", "Collect cards!"], 
-    ["Code", codeImage, "bg-green-500", "CODING"], 
-    ["Collection", cardImage, "bg-amber-500", "unless you're lonely"], 
-    ["Friends", friendImage, "bg-teal-500", "Trade cards"], 
-    ["Battle", battleImage, "bg-rose-500", "BATTLE WITH FRIENDS"]
+    ["Gacha", cardImage, "bg-indigo-500", "Collect cards!", "/gacha"], 
+    ["Code", codeImage, "bg-green-500", "CODING", "/code"], 
+    ["Collection", cardImage, "bg-amber-500", "unless you're lonely", "/collection"], 
+    ["Friends", friendImage, "bg-teal-500", "Trade cards", "/friends"], 
+    ["Battle", battleImage, "bg-rose-500", "BATTLE WITH FRIENDS", "/battle"]
 ];

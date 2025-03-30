@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import Tilt from 'react-parallax-tilt'
 import { HomeInfo } from '../constant/home';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [flip, setFlip] = useState({});
+  const [activeLink, setActiveLink] = useState(true);
 
   const changeFlip = (state, i) => {
       const updateFlip = {...flip};
@@ -17,7 +19,7 @@ const Home = () => {
   return (
     <div className="h-screen relative flex items-center justify-center font-mono select-none overflow-hidden">
       {/* Nail */}
-      <div className="absolute top-0 mt-8 size-[1.5vw] rounded-full bg-black"></div>
+      <div className="absolute top-0 mt-8 size-[1.5vw] rounded-full bg-zinc-300"></div>
 
       {/* Hang */}
       <div className="absolute top-[9vw] size-[2.5vw] rotate-45 border-l-2 border-t-2 rounded-sm border-red-500 scale-500 -z-10"></div>
@@ -47,22 +49,26 @@ const Home = () => {
                 onLeave={() => changeFlip(false, i)}
               >
                 {/* Front Cover */}
-                <div className={`group h-full w-full flex items-center justify-center rounded-xl cursor-pointer duration-500 transform-3d transition-transform backface-hidden ${info[2]} ${flip[i] ? "2xl:-rotate-y-180 max-2xl:rotate-x-180" : "2xl:rotate-y-0 max-2xl:rotate-x-0"}`} >
-                  {/* Button to turn back */}
-                  <div 
-                    className="2xl:w-full 2xl:h-1/10 max-2xl:w-1/10 max-2xl:h-full absolute 2xl:top-0 max-2xl:right-0 2xl:rounded-t-xl max-2xl:rounded-r-xl text-2xl text-center transition hover:bg-white opacity-50"
-                    onClick={() => changeFlip(true, i)}
-                  >
-                    &gt;
-                  </div>
+                <Link to={activeLink ? info[4] : "/"} className="w-full h-full block transform-3d">
+                  <div className={`group h-full w-full flex items-center justify-center rounded-xl cursor-pointer duration-500 transform-3d transition-transform backface-hidden ${info[2]} ${flip[i] ? "2xl:-rotate-y-180 max-2xl:rotate-x-180" : "2xl:rotate-y-0 max-2xl:rotate-x-0"}`} >
+                    {/* Button to turn back */}
+                    <div 
+                      className="2xl:w-full 2xl:h-1/10 max-2xl:w-1/10 max-2xl:h-full absolute 2xl:top-0 max-2xl:right-0 2xl:rounded-t-xl max-2xl:rounded-r-xl text-2xl text-center transition hover:bg-white opacity-50"
+                      onClick={() => changeFlip(true, i)}
+                      onMouseOver={() => setActiveLink(false)}
+                      onMouseLeave={() => setActiveLink(true)}
+                    >
+                      &gt;
+                    </div>
 
-                  {/* Card info + logo */}
-                  <div className="max-2xl:h-full 2xl:w-full max-2xl:w-fit flex items-center justify-center transform-3d backface-hidden">
-                    <img className="group-hover:translate-z-8 duration-500 size-[9vw] opacity-75" src={info[1]} alt={info[0]} />
-                    <img className="group-hover:translate-x-3 duration-500 absolute size-[9vw] opacity-25" src={info[1]} alt={info[0]} />
-                    <div className="group-hover:translate-z-8 duration-500 absolute text-white text-[1.25vw] tracking-widest font-bold">{info[0]}</div>
+                    {/* Card info + logo */}
+                    <div className="max-2xl:h-full max-2xl:w-fit 2xl:w-full flex items-center justify-center transform-3d backface-hidden">
+                      <img className="group-hover:translate-z-8 duration-500 size-[9vw] opacity-75" src={info[1]} alt={info[0]} />
+                      <img className="group-hover:translate-x-3 duration-500 absolute size-[9vw] opacity-25" src={info[1]} alt={info[0]} />
+                      <div className="group-hover:translate-z-8 duration-500 absolute text-white text-[1.25vw] tracking-widest font-bold">{info[0]}</div>
+                    </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Back Cover */}
                 <div className={`h-full w-full rounded-xl duration-500 absolute top-0 bg-white backface-hidden ${flip[i] ? "2xl:rotate-y-0 max-2xl:rotate-x-0" : "2xl:rotate-y-180 max-2xl:-rotate-x-180"}`}>
