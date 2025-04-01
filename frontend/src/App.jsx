@@ -10,6 +10,7 @@ import Code from './pages/Code'
 import Friends from './pages/Friends'
 import Battle from './pages/Battle'
 import Collections from './pages/Collections'
+import Weather from './components/Weather'
 
 function App() {
   const [ auth, setAuth ] = useState(true)
@@ -17,6 +18,7 @@ function App() {
   return (
     <div>
       <Background />
+      <Weather />
       <NavBar />
 
       <Routes>
