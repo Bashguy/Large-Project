@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react"
+import cloudImg from "../assets/cloud.png"
 
 const Weather = () => {
   const [clouds, setClouds] = useState([]);
 
   const generateCloud = () => {
-    const size = Math.random() * 100 + 50;
-    const yPosition = Math.random() * 70 + 10; // Position between 10-80%
-    const duration = Math.random() * 10000 + 20000; // Random duration between 20-30s
+    const plusOrMinus = Math.random() < 0.5 ? -1 : 1; // Positive or negative
+    const imageFit = Math.random() < 0.5 ? 'contain' : 'initial' // Scale or distort
+
+    const size = Math.random() * 50 + 50; // Size between 100-200
+    const yPosition = plusOrMinus * (Math.random() * 50); // Position between -50-50%
+    const duration = Math.random() * 20000 + 60000; // Random duration between 80-100s
 
     const newCloud = {
       id: Date.now() + Math.random(),
       size: size,
       top: yPosition,
       duration: duration,
+      fit: imageFit
     };
 
     setClouds((prevClouds) => [...prevClouds, newCloud]);
@@ -25,12 +30,11 @@ const Weather = () => {
     // Schedule next cloud with random interval
     setTimeout(() => {
       generateCloud();
-    }, Math.random() * 5000 + 5000); // Random interval between 5-10 seconds
+    }, Math.random() * 15000 + 10000); // Random interval between 15-25 seconds
   };
 
   useEffect(() => {
     generateCloud();
-
   }, []);
 
   return (
@@ -38,22 +42,26 @@ const Weather = () => {
       {clouds.map((cloud) => (
         <div 
           key={cloud.id} 
-          className="absolute w-full" 
+          className="absolute top-0 h-full w-full" 
           style={{
-            top: `${cloud.top}%`,
-            animation: `moveCloud ${cloud.duration}ms linear forwards`}}
+            animation: `moveCloud ${cloud.duration}ms linear forwards`
+          }}
         >
-          <div 
-            className="rounded-full blur-sm bg-black opacity-30"
+          <img 
+            src={cloudImg} 
+            alt="cloud" 
+            className="absolute right-0 brightness-0 opacity-40 blur-md" 
             style={{
-              width: `${cloud.size*2}px`,
-              height: `${cloud.size}px`
+              top: `${cloud.top}%`, 
+              width: `${cloud.size}%`,
+              height: `${cloud.size}%`,
+              objectFit: `${cloud.fit}`
             }}
           />
         </div>
       ))}
-      <div className="h-full hidden w-full bg-amber-200 z-10 opacity-10"></div>
-      <div className="h-full w-full bg-blue-900 z-10 opacity-30"></div>
+      <div className="h-full w-full bg-amber-200 z-10 opacity-10"></div>
+      <div className="h-full hidden w-full bg-blue-900 z-10 opacity-30"></div>
     </div>
   )
 }

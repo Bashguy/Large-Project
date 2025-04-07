@@ -45,7 +45,7 @@ const Home = () => {
                 tiltMaxAngleY={5}
                 transitionSpeed={1000} 
                 perspective={500} 
-                className={`transition duration-300 relative w-[12vw] h-[40vh] lg:max-2xl:h-[12vh] ${i === 0 ? "lg:max-2xl:w-[55vw] lg:max-2xl:col-span-2" : "lg:max-2xl:w-full"} max-lg:w-[45vw] max-lg:h-[8vh] rounded-xl transition-all perspective-distant transform-3d hover:shadow-[6px_6px_12px_2px_rgba(0,0,0,0.3)]`}
+                className={`transition duration-300 relative w-[12vw] h-[40vh] lg:max-2xl:h-[12vh] ${i === 0 ? "lg:max-2xl:w-[55vw] lg:max-2xl:col-span-2" : "lg:max-2xl:w-full"} max-lg:w-[50vw] max-lg:h-[9vh] rounded-xl transition-all perspective-distant transform-3d hover:shadow-[6px_6px_12px_2px_rgba(0,0,0,0.3)]`}
                 onLeave={() => changeFlip(false, i)}
               >
                 {/* Front Cover */}

@@ -21,7 +21,7 @@
 
 @keyframes moveCloud {
     0% {
-        transform: translateX(-25%);
+        transform: translateX(-100%);
     }
     100% {
         transform: translateX(100%);

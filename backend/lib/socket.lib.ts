@@ -1,0 +1,35 @@
+import { Server } from "socket.io";
+import http from "http";
+import express from "express";
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173"
+    }
+});
+
+const userSocket = {}; // {userID: socketID}
+
+export const getReceiverID = (receiverID) => {
+    return userSocket[receiverID];
+}
+
+io.on("connection", (socket) => {
+    const userID = socket.handshake.query.userID; // can be null
+    if (userID) userSocket[userID] = socket.id;
+
+    // io.emit() is used to broadcast to all connected clients
+    io.emit("getOnlineUsers", Object.keys(userSocket) );
+
+    console.log("User Connected: ", userID);
+
+    socket.on("disconnect", () => {
+        delete userSocket[userID];
+        console.log("User Disconnected: ", userID);
+    });
+});
+
+export { app, server, io };
