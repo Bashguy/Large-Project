@@ -3,8 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoutes from "./routes/auth.route";
-import { connectDB } from "./lib/db.lib";
-import cardRoutes from "./routes/message.route";
+import cardRoutes from "./routes/card.route";
 import { app, server } from "./lib/socket.lib";
 
 import path from "path";
