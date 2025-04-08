@@ -18,7 +18,7 @@ function App() {
   return (
     <div>
       <Background />
-      <Weather />
+      {/*<Weather />*/}
       <NavBar />
 
       <Routes>
