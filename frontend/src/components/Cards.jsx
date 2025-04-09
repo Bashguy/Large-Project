@@ -1,9 +1,10 @@
 import React from 'react'
 import {useState} from 'react'
+import Collections from '../pages/Collections'
 
 
 export default function Cards() {
-  const [showInfo, setShowInfo] = useState(false)
+  
 
 
   const cardInfo = ({setShowInfo}) => {
@@ -15,9 +16,10 @@ export default function Cards() {
   }
   return (
     <div>
-      <div className='w-20 h-40 bg-amber-900 rounded-md'
+      <button className='w-20 h-40 bg-amber-900 rounded-md hover:bg-amber-50'
                       onClick={()=> setShowInfo(true)}>
-      </div>
+      </button>
+      
 
     </div>
   )
