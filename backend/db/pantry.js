@@ -1,4 +1,4 @@
-import { Mongoose } from "mongoose";
+//import { Mongoose } from "mongoose";
 
 export function connectDB() {
     try {
