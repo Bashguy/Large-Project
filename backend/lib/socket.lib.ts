@@ -11,13 +11,13 @@ const io = new Server(server, {
     }
 });
 
-const userSocket = {}; // {userID: socketID}
+const userSocket: any = {}; // {userID: socketID}
 
-export const getReceiverID = (receiverID) => {
+export const getReceiverID = (receiverID: any) => {
     return userSocket[receiverID];
 }
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: any) => {
     const userID = socket.handshake.query.userID; // can be null
     if (userID) userSocket[userID] = socket.id;
 

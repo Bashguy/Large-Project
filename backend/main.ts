@@ -5,11 +5,10 @@ import cors from "cors";
 import authRoutes from "./routes/auth.route";
 import cardRoutes from "./routes/card.route";
 import { app, server } from "./lib/socket.lib";
-
-import path from "path";
+import { getCollection } from "./lib/mongo.lib";
 
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -18,10 +17,22 @@ app.use(cors({
     credentials: true
 }));
 
+// Api routes
 app.use("/api/auth", authRoutes);
 app.use("/api/card", cardRoutes);
 
-server.listen(PORT, () => {
-    console.log("Connected to http://localhost:" + PORT);
-    connectDB();
-});
+async function startServer() {
+    try {
+        await getCollection("users"); // Test DB connection before starting server
+        console.log("MongoDB connection successful");
+        
+        server.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error("Failed to connect to MongoDB:", error);
+        process.exit(1);
+    }
+}
+
+startServer();
