@@ -4,20 +4,18 @@ const Settings = () => {
   // Sample data for the simplified card
   const [cardData] = useState({
     title: "Potato",
-    type: "fire", // Options: fire, water, grass, electric, psychic
+    type: "breakfast", // Options: fire, water, grass, electric, psychic
     rating: 4, // Rating out of 5
-    image: "/api/placeholder/300/200",
+    image: "",
     description: "A MIGHTy POTATO",
     attack: 20
   });
 
   // Color mapping based on type
   const typeColors = {
-    fire: "bg-red-100 border-red-400",
-    water: "bg-blue-100 border-blue-400",
-    grass: "bg-green-100 border-green-400",
-    electric: "bg-yellow-100 border-yellow-400",
-    psychic: "bg-purple-100 border-purple-400"
+    breakfast: "bg-red-100 border-red-400",
+    dinner: "bg-green-100 border-green-400",
+    dessert: "bg-purple-100 border-purple-400"
   };
 
   // Get background color class based on type

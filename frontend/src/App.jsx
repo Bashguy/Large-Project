@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Background from './components/Background'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -11,9 +11,16 @@ import Friends from './pages/Friends'
 import Battle from './pages/Battle'
 import Collections from './pages/Collections'
 import Weather from './components/Weather'
+import AuthProtectedRoute from './components/AuthRoute';
+import useAuthStore from './store/authStore'
 
 function App() {
-  const [ auth, setAuth ] = useState(true)
+  const { checkAuth, isAuthenticated } = useAuthStore();
+    
+  // Check authentication status when app loads
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return (
     <div>
@@ -22,14 +29,25 @@ function App() {
       <NavBar />
 
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/gacha' element={<Gacha />} />
-        <Route path='/code' element={<Code />} />
-        <Route path='/collection' element={<Collections />} />
-        <Route path='/friends' element={<Friends />} />
-        <Route path='/battle' element={<Battle />} />
-        <Route path='/settings' element={<Settings />} />
+        <Route path='/register' element={
+          isAuthenticated ? <Navigate to="/" replace /> : <Register />
+        } />
+
+        <Route element={<AuthProtectedRoute />}>
+          <Route path='/' element={<Home />} />
+          <Route path='/gacha' element={<Gacha />} />
+          <Route path='/code' element={<Code />} />
+          <Route path='/collection' element={<Collections />} />
+          <Route path='/friends' element={<Friends />} />
+          <Route path='/battle' element={<Battle />} />
+          <Route path='/settings' element={<Settings />} />
+        </Route>
+
+        {/* Default route */}
+        <Route path='*' element={
+          isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/register" replace />
+        } />
+
       </Routes>
     </div>
   )
