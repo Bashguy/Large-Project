@@ -26,7 +26,7 @@ async function startServer() {
         await getCollection("users"); // Test DB connection before starting server
         console.log("MongoDB connection successful");
         
-        server.listen(PORT, () => {
+        app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
         });
     } catch (error) {

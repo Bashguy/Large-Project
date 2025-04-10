@@ -60,6 +60,10 @@ export const SendTradeRequest = async (req: any, res: any): Promise<void> => {
     if (!friendId || !cardSentId || !cardWantId) {
       return res.status(400).json({ success: false, msg: "Friend ID, sent card ID, and wanted card ID are all required" });
     }
+
+    if (userID.toString() === friendId) {
+      return res.status(400).json({ success: false, msg: "You can't trade with yourself" });
+    }
     
     // Get user to find trade list ID
     const userCollection = await collections.users();
@@ -70,15 +74,15 @@ export const SendTradeRequest = async (req: any, res: any): Promise<void> => {
     }
     
     // Verify friend exists
-    const friend = await userCollection.findOne({ _id: new ObjectId(friendId) });
+    const friend = await userCollection.findOne({ _id: ObjectId.createFromHexString(friendId) });
     if (!friend) {
       return res.status(404).json({ success: false, msg: "Friend not found" });
     }
     
     // Verify user has the card to send and want
     const cardCollection = await collections.cards();
-    const sentCard = await cardCollection.findOne({ _id: new ObjectId(cardSentId) });
-    const wantedCard = await cardCollection.findOne({ _id: new ObjectId(cardWantId) });
+    const sentCard = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardSentId) });
+    const wantedCard = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardWantId) });
     
     if (!sentCard) {
       return res.status(404).json({ success: false, msg: "Sent card not found" });
@@ -112,9 +116,9 @@ export const SendTradeRequest = async (req: any, res: any): Promise<void> => {
         $push: { 
           sent: {
             _id: sharedTradeId,  // Use the same ID for both trade records
-            friend_Id: new ObjectId(friendId),
-            card_sent: cardSentId,
-            card_want: cardWantId,
+            friend_Id: ObjectId.createFromHexString(friendId),
+            card_sent: ObjectId.createFromHexString(cardSentId),
+            card_want: ObjectId.createFromHexString(cardWantId),
             date: currentDate
           } as any
         } 
@@ -129,8 +133,8 @@ export const SendTradeRequest = async (req: any, res: any): Promise<void> => {
           received: {
             _id: sharedTradeId,  // Use the same ID for both trade records
             friend_Id: userID,
-            card_sent: cardSentId,
-            card_want: cardWantId,
+            card_sent: ObjectId.createFromHexString(cardSentId),
+            card_want: ObjectId.createFromHexString(cardWantId),
             date: currentDate
           } as any
         } 
@@ -174,17 +178,10 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       // Unwind to work with individual trades
       { $unwind: { path: "$sent", preserveNullAndEmptyArrays: true } },
       
-      // Add fields with ObjectId conversions
-      { $addFields: {
-          "friendObjectId": { $toObjectId: "$sent.friend_Id" },
-          "cardSentId": { $toObjectId: "$sent.card_sent" },
-          "cardWantId": { $toObjectId: "$sent.card_want" }
-      }},
-      
       // Lookup friend info
       { $lookup: {
           from: "users",
-          localField: "friendObjectId",
+          localField: "$sent.friend_Id",
           foreignField: "_id",
           as: "friendInfo"
       }},
@@ -192,7 +189,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       // Lookup sent card details
       { $lookup: {
           from: "cards",
-          localField: "cardSentId",
+          localField: "$sent.card_sent",
           foreignField: "_id",
           as: "sentCardDetails"
       }},
@@ -200,7 +197,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       // Lookup want card details
       { $lookup: {
           from: "cards",
-          localField: "cardWantId",
+          localField: "$sent.card_want",
           foreignField: "_id",
           as: "wantCardDetails"
       }},
@@ -243,26 +240,21 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       { $match: { _id: user.trade } },
       { $project: { received: 1, _id: 0 } },
       { $unwind: { path: "$received", preserveNullAndEmptyArrays: true } },
-      { $addFields: {
-          "friendObjectId": { $toObjectId: "$received.friend_Id" },
-          "cardSentId": { $toObjectId: "$received.card_sent" },
-          "cardWantId": { $toObjectId: "$received.card_want" }
-      }},
       { $lookup: {
           from: "users",
-          localField: "friendObjectId",
+          localField: "$received.friend_Id",
           foreignField: "_id",
           as: "friendInfo"
       }},
       { $lookup: {
           from: "cards",
-          localField: "cardSentId",
+          localField: "$received.card_sent",
           foreignField: "_id",
           as: "sentCardDetails"
       }},
       { $lookup: {
           from: "cards",
-          localField: "cardWantId",
+          localField: "$received.card_want",
           foreignField: "_id",
           as: "wantCardDetails"
       }},
@@ -360,8 +352,8 @@ export const AcceptTrade = async (req: any, res: any): Promise<void> => {
     
     // Get card details to know types
     const cardCollection = await collections.cards();
-    const offeredCard: any = await cardCollection.findOne({ _id: new ObjectId(trade.card_sent) });
-    const wantedCard: any = await cardCollection.findOne({ _id: new ObjectId(trade.card_want) });
+    const offeredCard: any = await cardCollection.findOne({ _id: trade.card_sent });
+    const wantedCard: any = await cardCollection.findOne({ _id: trade.card_want });
     
     if (!offeredCard || !wantedCard) {
       return res.status(404).json({ success: false, msg: "One or more cards not found" });
@@ -378,7 +370,7 @@ export const AcceptTrade = async (req: any, res: any): Promise<void> => {
     );
 
     if (!userHasCard || !friendHasCard) {
-      return res.status(400).json({ success: false, msg: "One or more required cards are no longer available" });
+      return res.status(400).json({ success: false, msg: "One of required cards are no longer available" });
     }
     
     // Process the trade - Remove cards
@@ -392,12 +384,12 @@ export const AcceptTrade = async (req: any, res: any): Promise<void> => {
     // Remove trade from both users' trade lists using the shared ID
     await tradeListCollection.updateOne(
       { _id: user.trade },
-      { $pull: { received: { _id: new ObjectId(tradeId) } as any } }
+      { $pull: { received: { _id: ObjectId.createFromHexString(tradeId) } as any } }
     );
 
     await tradeListCollection.updateOne(
       { _id: friend.trade },
-      { $pull: { sent: { _id: new ObjectId(tradeId) } as any } }
+      { $pull: { sent: { _id: ObjectId.createFromHexString(tradeId) } as any } }
     );
     
     return res.status(200).json({ 
@@ -414,10 +406,14 @@ export const AcceptTrade = async (req: any, res: any): Promise<void> => {
 export const DeclineTrade = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
-    const { tradeId } = req.params;
+    const { tradeId, tradeType } = req.params;
     
     if (!tradeId) {
       return res.status(400).json({ success: false, msg: "Trade ID is required" });
+    }
+
+    if (!tradeType || !['sent', 'received'].includes(tradeType)) {
+      return res.status(400).json({ success: false, msg: "Valid trade type (sent or received) is required" });
     }
     
     // Get user info
@@ -432,7 +428,7 @@ export const DeclineTrade = async (req: any, res: any): Promise<void> => {
     const trades: any = await tradeListCollection.findOne({ _id: user.trade });
     
     // Find the specific trade in received trades using the shared ID
-    const tradeIndex = trades.received.findIndex(
+    const tradeIndex = trades[tradeType].findIndex( // change to sent
       (trade: any) => trade._id.toString() === tradeId
     );
 
@@ -441,7 +437,7 @@ export const DeclineTrade = async (req: any, res: any): Promise<void> => {
     }
     
     // Get friend's info
-    const trade = trades.received[tradeIndex];
+    const trade = trades[tradeType][tradeIndex]; // change to sent
     const friend = await userCollection.findOne({ _id: trade.friend_Id });
     if (!friend) {
       return res.status(404).json({ success: false, msg: "Friend not found" });
@@ -450,12 +446,13 @@ export const DeclineTrade = async (req: any, res: any): Promise<void> => {
     // Remove trade from both users' trade lists using the shared ID
     await tradeListCollection.updateOne(
       { _id: user.trade },
-      { $pull: { received: { _id: new ObjectId(tradeId) } as any } }
+      { $pull: { [tradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } } // change to sent
     );
     
+    const friendTradeType = tradeType === 'sent' ? 'received' : 'sent';
     await tradeListCollection.updateOne(
       { _id: friend.trade },
-      { $pull: { sent: { _id: new ObjectId(tradeId) } as any } }
+      { $pull: { [friendTradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } } // change to received
     );
     
     return res.status(200).json({ 

@@ -118,6 +118,20 @@ export const useAddCardToCollection = () => {
   });
 };
 
+export const useUnlock4Cards = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (type) => {
+      const response = await userCardApi.Unlock4Cards(type);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userCards'] });
+    }
+  });
+};
+
 // ==================== Trade Queries ====================
 
 export const useUserTrades = () => {
@@ -166,8 +180,8 @@ export const useDeclineTrade = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (tradeId) => {
-      const response = await tradeApi.declineTrade(tradeId);
+    mutationFn: async (data) => {
+      const response = await tradeApi.declineTrade(data);
       return response;
     },
     onSuccess: () => {

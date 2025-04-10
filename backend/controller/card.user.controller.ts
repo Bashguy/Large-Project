@@ -27,16 +27,11 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
       
       // Unwind to work with individual cards
       { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
-      
-      // Add a new field with converted ObjectId
-      { $addFields: {
-          "cardObjectId": { $toObjectId: `$${type}.uCard_Id` }
-      }},
-      
+
       // Lookup the card details
       { $lookup: {
           from: "cards",
-          localField: "cardObjectId",
+          localField: `${type}.uCard_Id`,
           foreignField: "_id",
           as: "cardDetails"
       }},
@@ -61,12 +56,6 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
           _id: null,
           cards: { $push: "$$ROOT" }
       }},
-      
-      // Final projection to just get the cards array
-      { $project: {
-          _id: 0,
-          cards: 1
-      }}
     ];
     
     // Run aggregation
@@ -104,7 +93,7 @@ export const AddCardToUserCollection = async (req: any, res: any): Promise<void>
     
     // Get card to determine type
     const cardCollection = await collections.cards();
-    const card = await cardCollection.findOne({ _id: new ObjectId(cardId) });
+    const card = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardId) });
     
     if (!card) {
       return res.status(404).json({ success: false, msg: "Card not found" });
@@ -131,7 +120,7 @@ export const AddCardToUserCollection = async (req: any, res: any): Promise<void>
       // Card doesn't exist, add it
       await cardCountCollection.updateOne(
         { _id: user.cards_unlocked },
-        { $push: { [card.type]: { uCard_Id: cardId, count: 1 } as any } }
+        { $push: { [card.type]: { uCard_Id: ObjectId.createFromHexString(cardId), count: 1 } as any } }
       );
     }
     
@@ -162,7 +151,7 @@ export const RemoveCardFromUserCollection = async (req: any, res: any): Promise<
     
     // Get card to determine type
     const cardCollection = await collections.cards();
-    const card = await cardCollection.findOne({ _id: new ObjectId(cardId) });
+    const card = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardId) });
     
     if (!card) {
       return res.status(404).json({ success: false, msg: "Card not found" });
@@ -192,12 +181,88 @@ export const RemoveCardFromUserCollection = async (req: any, res: any): Promise<
         { _id: user.cards_unlocked },
         { $inc: { [updatePath]: -1 } }
       );
+    } else {
+      return res.status(400).json({ success: false, msg: "You don't have this card.." });
     }
     
     return res.status(200).json({ success: true, msg: "Card removed from collection" });
     
   } catch (error) {
     console.error("RemoveCardFromUserCollection error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { type } = req.params;
+
+    const userCollection = await collections.users();
+    const user = await userCollection.findOne({ _id: userID });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+    
+    const cardListCollection = await collections.cardList();
+    
+    // Get card list for the specific type
+    const getTypeArray = await cardListCollection.aggregate([
+      { $project: { _id: 0, selectType: `$${type}` } },
+      { $lookup: {
+          from: "cards",
+          localField: "selectType",
+          foreignField: "_id",
+          as: "cardDetails"
+        }
+      }
+    ]).toArray();
+
+    const cardTypeList = getTypeArray[0].cardDetails;
+
+    const cardCountCollection = await collections.cardCount();
+    const result: any = [];
+
+    // Randomly select 4 cards from the pile (includes duplicates)
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * cardTypeList.length);
+      const cardInfo = cardTypeList[randomIndex];
+
+      result.push(cardInfo);
+
+      // Check if card already exists in user's collection
+      // Update the get command for every addition
+      const cardCount: any = await cardCountCollection.findOne({ _id: user.cards_unlocked });
+      const getCardArrayType = cardCount[cardInfo.type] || [];
+      const cardIndex = getCardArrayType.findIndex(
+        (item: any)  => item.uCard_Id.toString() === cardInfo._id.toString()
+      );
+    
+      if (cardIndex !== -1) {
+        // Card exists, increment count
+        const updatePath = `${cardInfo.type}.${cardIndex}.count`;
+        
+        await cardCountCollection.updateOne(
+          { _id: user.cards_unlocked },
+          { $inc: { [updatePath]: 1 } }
+        );
+      } else {
+        // Card doesn't exist, add it
+        await cardCountCollection.updateOne(
+          { _id: user.cards_unlocked },
+          { $push: { [cardInfo.type]: { uCard_Id: cardInfo._id, count: 1 } as any } }
+        );
+      }
+    }
+    
+    return res.status(200).json({ 
+      success: true, 
+      data: result
+    });
+    
+  } catch (error) {
+    console.error("UnlockCardsByType error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };

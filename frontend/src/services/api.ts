@@ -55,7 +55,7 @@ export const authApi = {
     }),
   
   logout: () => 
-    fetchApi('/auth/logout', { method: 'POST' }),
+    fetchApi('/auth/logout', ),
   
   checkAuth: () => 
     fetchApi('/auth/check'),
@@ -113,7 +113,10 @@ export const userCardApi = {
     }),
   
   removeCardFromCollection: (cardId) => 
-    fetchApi(`/card/collection/${cardId}`, { method: 'DELETE' })
+    fetchApi(`/card/collection/${cardId}`, { method: 'DELETE' }),
+
+  Unlock4Cards: (type) => 
+    fetchApi(`/card/collection/unlock/${type}`, { method: 'POST' }),
 };
 
 // Trade API
@@ -130,6 +133,6 @@ export const tradeApi = {
   acceptTrade: (tradeId) => 
     fetchApi(`/card/trade/accept/${tradeId}`, { method: 'POST' }),
   
-  declineTrade: (tradeId) => 
-    fetchApi(`/card/trade/decline/${tradeId}`, { method: 'POST' })
+  declineTrade: (data) => 
+    fetchApi(`/card/trade/decline/${data.tradeType}/${data.tradeId}`, { method: 'POST' })
 };
