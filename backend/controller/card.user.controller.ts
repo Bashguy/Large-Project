@@ -204,6 +204,10 @@ export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
+
+    if (parseInt(user.acorns) < 25) {
+      return res.status(400).json({ success: false, msg: "You don't have enough acorns!" });
+    }
     
     const cardListCollection = await collections.cardList();
     
