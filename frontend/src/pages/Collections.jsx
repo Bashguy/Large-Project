@@ -34,7 +34,18 @@ export const Collections = () => {
                   < ProgressBar progressPercentage={33}/>
                   <p className="text-sm">12/36</p>
                 </div>
-                
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex border-3">
+                <input 
+                  type='text'
+                  className='w-full p-3 bg-white border-3'
+                  placeholder="Search for a Card"
+                />
+                <button className='w-1/8 p-3 bg-red-500 hover:cursor-pointer'>
+                  Search
+                </button>
             </div>
           
           {/* Collections */}

@@ -11,6 +11,19 @@ function DeleteUser({setConfirmDelete}) {
         }
     }
 
+    const changeName = (name) => {
+      alert("Change Name")
+    }
+    const changeUserName = (name) => {
+      alert("Change Username")
+    }
+    const changeEmail = (name) => {
+      alert("Change Email")
+    }
+    const changePassword = (name) => {
+      alert("Change Password")
+    }
+
   return (
     <div className='w-screen h-screen fixed top-0 right-0 flex justify-center items-center'>
       <div className='bg-white p-10 rounded-md shadow-md'>
