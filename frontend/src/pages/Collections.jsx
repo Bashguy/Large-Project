@@ -1,5 +1,4 @@
 import CardsList from "../components/cardsList"
-import Cards from "../components/cards"
 import {useState} from 'react'
 
 export const Collections = () => {
@@ -21,7 +20,7 @@ export const Collections = () => {
   return (
     <div>
         {showInfo && <ViewCard setShowInfo={showInfo} />}
-        
+
         <div className="flex w-screen h-screen justify-center">
           {/* Unfied Pantry Item*/}
         <div className='flex-col justify-center items-center align-top w-4/5 h-screen border-3'> 

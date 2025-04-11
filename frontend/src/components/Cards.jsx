@@ -1,13 +1,12 @@
 import React from 'react'
 import {useState} from 'react'
-import Collections from '../pages/Collections'
 
 
 export default function Cards() {
   
 
 
-  const cardInfo = ({setShowInfo}) => {
+  const cardInfo = ({showInfo}) => {
     return (
       <div className='hidden'>
 
