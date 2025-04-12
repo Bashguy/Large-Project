@@ -1,11 +1,25 @@
 import { useState, createContext, useContext } from "react"
-import DeleteUser from "../components/DeleteUser"
+import DeleteUser from "../components/settingsComponents/DeleteUser"
 import { useWeather } from "../context/WeatherContext"
+import InputField from "../components/settingsComponents/InputField"
 
 const Settings = () => {
   const [confirmDelete, setConfirmDelete] = useState(false)  
   const {weather, toggleWeather} = useWeather()
 
+  const changeName = (name) => {
+    alert("Change Name")
+  }
+  const changeUserName = (name) => {
+    alert("Change Username")
+  }
+  const changeEmail = (name) => {
+    alert("Change Email")
+  }
+  const changePassword = (name) => {
+    alert("Change Password")
+  }
+  
   // Get data here
   var name = "hai"
   var username = "hullo"
@@ -29,25 +43,10 @@ const Settings = () => {
               onClick={toggleWeather}> {weather ? 'Turn Off' : 'Turn On'} </button>
             </div>
 
-            <div className="flex w-full justify-between items-center">
-              <label className='' for="name">Name</label>
-              <input type="text" n="name" id="name" placeholder={name} className="w-3/5 p-2 bg-white"/>
-            </div>
-            
-            <div className="flex w-full justify-between items-center">
-              <label className='' for="username">Username</label>
-              <input type="text" u="username" id="username" placeholder={username} className="w-3/5 p-2 bg-white"/>
-            </div>
-
-            <div className="flex w-full justify-between items-center">
-              <label className='' for="password">Password</label>
-              <input type="text" p="password" placeholder={password} className="w-3/5 p-2 bg-white"/>
-            </div>
-
-            <div className="flex w-full justify-between items-center">
-              <label className='' for="email">Email</label>
-              <input type="text" e="email" placeholder={email} className="w-3/5 p-2 bg-white"/>
-            </div>
+            <InputField field={"Name"} placeholder={name} />
+            <InputField field={"Username"} placeholder={username} />
+            <InputField field={"Password"} placeholder={password} />
+            <InputField field={"Email"} placeholder={email} />
 
             <button className=" h-10 w-40 cursor-pointer border-3 bg-red-400 rounded-md"
                     onClick={()=>setConfirmDelete(true)}
