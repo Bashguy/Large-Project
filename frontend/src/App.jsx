@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, createContext, useContext } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Background from './components/Background'
 import Register from './pages/Register'
@@ -11,14 +11,21 @@ import Friends from './pages/Friends'
 import Battle from './pages/Battle'
 import Collections from './pages/Collections'
 import Weather from './components/Weather'
+import { useWeather } from './context/WeatherContext'
+
+const WeatherContext = createContext()
 
 function App() {
   const [ auth, setAuth ] = useState(true)
 
+  const {weather, setWeather} = useWeather()
+  
   return (
     <div>
       <Background />
-      {/*<Weather />*/}
+      
+      { weather && <Weather />}
+
       <NavBar />
 
       <Routes>
@@ -29,7 +36,7 @@ function App() {
         <Route path='/collection' element={<Collections />} />
         <Route path='/friends' element={<Friends />} />
         <Route path='/battle' element={<Battle />} />
-        <Route path='/settings' element={<Settings />} />
+        <Route path='/settings' element={<Settings />}/>
       </Routes>
     </div>
   )
