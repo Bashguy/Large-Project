@@ -2,34 +2,52 @@
 const dotenv = require("dotenv")
 dotenv.config()
 
-//Gets schemas
-const Users = require("./Users")
-const Admins = require("./Admins")
+//Fetches mongodb 
+const {MongoClient} = require("mongodb")
+
+//Gets the collections
+//const Users = require("./Users")
+//const Admins = require("./Admins")
 const Cards = require("./Cards")
-const Card_Count = require("./Card_Count")
-const Card_List = require("./Card_List")
-const Trade_List = require("./Trade_List")
+//const Card_Count = require("./Card_Count")
+//const Card_List = require("./Card_List")
+//const Trade_List = require("./Trade_List")
 
-//Gets mongoose library
-const mongoose = require("mongoose")
 
-console.log("Started to run database")
+console.log("Starting program")
 
-//Connects to the database
-mongoose.connect(process.env.MONGO_URI)
+async function main() {
 
-//run()
-//Testing the database
-async function run() {
-    //Follows format: const newAdmin = new Admins({username: "TestAdmin#", password: "TestPassword#", email: "AdminMail#@test.com"})
-    const newAdmin = await Admins.create({username: "TestAdmin2", password: "TestPassword2", email: "AdminMail2@test.com"})
-    
-    //const newAdmin = new Admins({username: "TestAdmin2", password: "TestPassword2", email: "AdminMail2@test.com"})
-    //await newAdmin.save()
-    console.log(newAdmin)
+    //Connects to the database
+    const client = new MongoClient(process.env.MONGO_URI)
+
+    try {
+
+        //Connects to the server
+        await client.connect()
+        
+        console.log("Database connection established")
+
+        //Connects to the database
+        const database = client.db()
+
+        //Adjusting the database
+        await Admins(database)
+        //await Cards(database)
+        console.log("Code running successfully!")
+
+
+    } catch(error) {
+
+        console.log("Error! Couldn't connect to the database!", error)
+
+    } finally {
+
+        await client.close()
+
+    }
+
+
 }
 
-
-
-//control+c to stop running backend
-//to run again, type "npm run dev"
+main().catch(console.dir)
