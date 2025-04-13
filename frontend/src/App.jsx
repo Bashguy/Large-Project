@@ -12,6 +12,7 @@ import Battle from './pages/Battle'
 import Collections from './pages/Collections'
 import Weather from './components/Weather'
 import { useWeather } from './context/WeatherContext'
+import { CardProvider } from './context/CardContext' 
 
 const WeatherContext = createContext()
 
@@ -33,7 +34,9 @@ function App() {
         <Route path='/register' element={<Register />} />
         <Route path='/gacha' element={<Gacha />} />
         <Route path='/code' element={<Code />} />
-        <Route path='/collection' element={<Collections />} />
+        <Route path='/collection' element={
+          <CardProvider><Collections /></CardProvider>
+          } />
         <Route path='/friends' element={<Friends />} />
         <Route path='/battle' element={<Battle />} />
         <Route path='/settings' element={<Settings />}/>

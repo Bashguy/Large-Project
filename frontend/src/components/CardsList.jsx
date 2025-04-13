@@ -47,8 +47,9 @@ const dessert = [
 // wrapping our props in {} prevents us from needing to write extra code
 export default function CardsList({info}) {
   return (
-    <div className='grid justify-items-center sm:grid-rows-6 sm:grid-cols-2 md:grid-rows-3 md:grid-cols-4
-                    place-content-center border-3'>
+    <div>
+        <div className='grid gap-5 sm:grid-rows-6 sm:grid-cols-2 md:grid-rows-3 md:grid-cols-4
+                    border-3 p-5'>
         <Cards showInfo = {info}/>
         <Cards />
         <Cards />
@@ -57,6 +58,11 @@ export default function CardsList({info}) {
         <Cards />
         <Cards />
         <Cards />
+        <Cards />
+        <Cards />
+        <Cards />
+        <Cards />
+        </div>
     </div>
   )
 }

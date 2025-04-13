@@ -6,25 +6,30 @@ import InputField from "../components/settingsComponents/InputField"
 const Settings = () => {
   const [confirmDelete, setConfirmDelete] = useState(false)  
   const {weather, toggleWeather} = useWeather()
+  const [userInfo, setUserInfo] = useState({
+    name: "hai",
+    username: "hoi",
+    password: "hallo",
+    email: "hay"
+  })
 
-  const changeName = (name) => {
-    alert("Change Name")
+  const changeName = (newName) => {
+    setUserInfo({name: newName})
+    alert(`Change to name ${userInfo.name}`)
+    
   }
-  const changeUserName = (name) => {
-    alert("Change Username")
+  const changeUserName = (newUser) => {
+    setUserInfo({...userInfo,username: newUser})
+    alert(`Change to name ${userInfo.username}`)
   }
-  const changeEmail = (name) => {
-    alert("Change Email")
+  const changeEmail = (newEmail) => {
+    setUserInfo({...userInfo,email: newEmail})
+    alert(`Change to name ${userInfo.email}`)
   }
-  const changePassword = (name) => {
-    alert("Change Password")
+  const changePassword = (newPass) => {
+    setUserInfo({...userInfo,password: newPass})
+    alert(`Change to name ${userInfo.password}`)
   }
-  
-  // Get data here
-  var name = "hai"
-  var username = "hullo"
-  var password = "hallo"
-  var email = "hey"
 
   return (
     <div>
@@ -43,15 +48,15 @@ const Settings = () => {
               onClick={toggleWeather}> {weather ? 'Turn Off' : 'Turn On'} </button>
             </div>
 
-            <InputField field={"Name"} placeholder={name} />
-            <InputField field={"Username"} placeholder={username} />
-            <InputField field={"Password"} placeholder={password} />
-            <InputField field={"Email"} placeholder={email} />
+            <InputField field={"Name"} sendTo={changeName} placeholder={userInfo.name} />
+            <InputField field={"Username"} sendTo={changeUserName} placeholder={userInfo.username} />
+            <InputField field={"Password"} sendTo={changePassword} placeholder={userInfo.password} />
+            <InputField field={"Email"} sendTo={changeEmail} placeholder={userInfo.email} />
 
             <button className=" h-10 w-40 cursor-pointer border-3 bg-red-400 rounded-md"
                     onClick={()=>setConfirmDelete(true)}
                     >Delete All Data</button>
-                    {confirmDelete && <DeleteUser setConfirmDelete={setConfirmDelete}/>}
+                    {confirmDelete && <DeleteUser setConfirmDelete={setConfirmDelete} info={userInfo}/>}
 
           </div>
         </div>

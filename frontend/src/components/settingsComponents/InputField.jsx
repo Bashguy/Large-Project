@@ -3,7 +3,7 @@ import { useState } from 'react'
 import pencil from '../../assets/pencil.png'
 
 
-function InputField({ field, placeholder }) {
+function InputField({ field, sendTo, placeholder }) {
     const [disabled, setDisabled] = useState(true)
     const [input, setInput] = useState("")
 

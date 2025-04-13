@@ -1,11 +1,18 @@
 import CardsList from "../components/cardsList"
-import {useState} from 'react'
+import {useState, createContext, useContext} from 'react'
+import { useCard } from "../context/CardContext"
 
 export const Collections = () => {
   const [showInfo, setShowInfo] = useState(false)
+  //const [search, setSearch] = useState("")
 
   // function to get number of cards collected from API
 
+  const searchCard = (query) => {
+    if(query !== "") {
+      console.log(`Searched for query ${query}`)
+    }
+  }
   // Took a progressbar from online 
   const ProgressBar = ({ progressPercentage }) => {
     return (
@@ -41,11 +48,9 @@ export const Collections = () => {
                 <input 
                   type='text'
                   className='w-full p-3 bg-white border-3'
-                  placeholder="Search for a Card"
+                  placeholder="Type here to search for a card"
+                  onChange={(e) =>{searchCard(e.target.value)}}
                 />
-                <button className='w-1/8 p-3 bg-red-500 hover:cursor-pointer'>
-                  Search
-                </button>
             </div>
           
           {/* Collections */}

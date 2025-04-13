@@ -1,14 +1,17 @@
 import React from 'react'
 import { useState } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 
-function DeleteUser({setConfirmDelete}) {
+function DeleteUser({setConfirmDelete, info}) {
+    const navigate = useNavigate()
     const [canDelete, setCanDelete] = useState("")
-    
+
     const deleteData = () => {
         console.log(canDelete)
-        if(canDelete === "hallo") {
+        if(canDelete === info.password) {
             alert("Deleted aaaaaaaaaall your data SUCKAA");
-        }
+            navigate('/register')
+          }
     }
 
   return (
@@ -29,7 +32,7 @@ function DeleteUser({setConfirmDelete}) {
           >Cancel</button>
           <button className='outline-1 outline-[#101f20] hover:bg-[#101f20] hover:text-white py-2 px-4 enabled:bg-red-500 text-black rounded-lg 
                             disabled:cursor-default disabled:bg-transparent disabled:text-[#101f20]'
-           disabled={canDelete !== "hallo"}
+           disabled={canDelete !== info.password}
            onClick={() => deleteData()}
           >Delete</button>
         </div>
