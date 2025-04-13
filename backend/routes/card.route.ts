@@ -2,11 +2,12 @@ import express from "express";
 import {
     CreateCard,
     GetCardsByType,
-    GetCardById
+    // GetCardById,
 } from "../controller/card.manage.controller";
 import {
     GetUserCards,
     AddCardToUserCollection,
+    Unlock4CardsByType,
     RemoveCardFromUserCollection,
 } from "../controller/card.user.controller";
 import {
@@ -29,6 +30,7 @@ router.get("/type/:type", GetCardsByType);
 // Protected routes - User's card collection
 router.get("/collection/:type?", securityRoute, GetUserCards);
 router.post("/collection/add", securityRoute, AddCardToUserCollection);
+router.post("/collection/unlock/:type", securityRoute, Unlock4CardsByType);
 router.delete("/collection/:cardId", securityRoute, RemoveCardFromUserCollection);
     
 // Trade routes

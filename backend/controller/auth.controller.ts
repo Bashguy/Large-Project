@@ -11,8 +11,29 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
-    if (newUser.password.length < 6) {
-      return res.status(400).json({ success: false, msg: "Password must be at least 6 characters" });
+    const hasLength = newUser.password.length >= 8
+    const hasNumber = (/\d/).test(newUser.password);
+    const hasSymbol = (/[^\w\s]/).test(newUser.password);
+    const hasSpaces = (/\s/).test(newUser.password);
+    const userHasSpaces = (/\s/).test(newUser.username);
+
+    if (!hasLength) {
+      return res.status(400).json({ success: false, msg: "Password must be at least 8 characters" });
+    } else if (!hasNumber) {
+      return res.status(400).json({ success: false, msg: "Password must have digit(s)" });
+    } else if (!hasSymbol) {
+      return res.status(400).json({ success: false, msg: "Password must have special character(s)" });
+    } else if (hasSpaces) {
+      return res.status(400).json({ success: false, msg: "Password must have no spaces" });
+    } else if (userHasSpaces) {
+      return res.status(400).json({ success: false, msg: "Username must have no spaces" });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmail = emailPattern.test(newUser.email)
+
+    if (!validEmail) {
+      return res.status(400).json({ success: false, msg: "Invalid Email format" });
     }
 
     const userCollection = await collections.users();
@@ -51,6 +72,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       received: []
     });
 
+    const date = new Date();
+
     // Prepare user document
     const userDocument = {
       username: newUser.username,
@@ -62,7 +85,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       loss: 0,
       acorns: 100, // Starting with 100 acorns
       trade: SetTradeList.insertedId,
-      createdAt: new Date()
+      createdAt: date,
+      updatedAt: date.setDate(date.getDate() - 1)
     };
 
     // Insert user
@@ -198,10 +222,13 @@ export const AddFriend = async (req: any, res: any): Promise<void> => {
     
     // Check if already friends
     const user = await userCollection.findOne({ _id: userID });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
     
     // Convert friend IDs to strings for comparison
     // Checks if at least one element in an array satisfies a provided condition
-    const alreadyFriends = user?.friend_list.some((friendId: any) => 
+    const alreadyFriends = user.friend_list.some((friendId: any) =>
       friendId.toString() === (friend._id).toString()
     );
     
@@ -243,12 +270,12 @@ export const RemoveFriend = async (req: any, res: any): Promise<void> => {
     // Remove friend from user's friend list
     await userCollection.updateOne(
       { _id: userID },
-      { $pull: { friend_list: friendId } }
+      { $pull: { friend_list: ObjectId.createFromHexString(friendId) as any } }
     );
     
     // Remove user from friend's friend list
     await userCollection.updateOne(
-      { _id: friendId },
+      { _id: ObjectId.createFromHexString(friendId) },
       { $pull: { friend_list: userID } }
     );
     
@@ -299,7 +326,7 @@ export const GetFriendList = async (req: any, res: any): Promise<void> => {
 export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
-    const { isWin, acornsEarned } = req.body;
+    const { isWin, acornsEarned, gameType } = req.body;
     
     if (isWin === undefined || !acornsEarned) {
       return res.status(400).json({ success: false, msg: "Game result data is required" });
@@ -310,9 +337,11 @@ export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
     // Update win/loss and acorns
     const updateData = {
       $inc: {
-        acorns: parseInt(acornsEarned), 
-        wins: (isWin) ? 1 : 0, 
-        loss: (isWin) ? 0 : 1
+        acorns: parseInt(acornsEarned, 10), // safe parsing
+        ...(gameType === 'battle' && {
+          wins: (isWin === true) ? 1 : 0, 
+          loss: (isWin === true) ? 0 : 1
+        })
       }
     };
     

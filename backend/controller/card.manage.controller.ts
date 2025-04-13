@@ -3,12 +3,12 @@ import cloudinary from "../lib/cloudinary.lib";
 import { collections } from "../lib/mongo.lib";
 
 export const CreateCard = async (req: any, res: any): Promise<void> => {
-    const { name, stars, description, type, grid_id } = req.body;
+    const { name, stars, description, type, power, grid_id } = req.body;
     const { file: cardImage } = req;
 
     // Validate required fields
     try {
-      if (!name || !stars || !description || !type || !grid_id) { //  || !cardImage
+      if (!name || !stars || !description || !type || !power || !grid_id) { //  || !cardImage
         return res.status(400).json({ success: false, msg: "All fields are required" });
       }
 
@@ -39,6 +39,7 @@ export const CreateCard = async (req: any, res: any): Promise<void> => {
         stars: parseInt(stars),
         description,
         type,
+        power,
         grid_id,
         // image: (imageResult as any).secure_url,
         createdAt: new Date()
@@ -67,7 +68,7 @@ export const CreateCard = async (req: any, res: any): Promise<void> => {
       return res.status(201).json({
         success: true,
         msg: "Card created successfully",
-        data: { ...cardData, _id: cardResult.insertedId }
+        data: cardResult
       });
 
   } catch (error) {
@@ -88,10 +89,10 @@ export const GetCardsByType = async (req: any, res: any): Promise<void> => {
     
     // Get card list for the specific type
     const result = await cardListCollection.aggregate([
-      { $project: { _id: 0, cards: `$${type}` } },
+      { $project: { _id: 0, selectType: `$${type}` } },
       { $lookup: {
           from: "cards",
-          localField: "cards",
+          localField: "selectType",
           foreignField: "_id",
           as: "cardDetails"
         }
@@ -113,6 +114,7 @@ export const GetCardsByType = async (req: any, res: any): Promise<void> => {
   }
 };
 
+/* 
 export const GetCardById = async (req: any, res: any): Promise<void> => {
   try {
     const { cardId } = req.params;
@@ -135,3 +137,4 @@ export const GetCardById = async (req: any, res: any): Promise<void> => {
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };
+ */
