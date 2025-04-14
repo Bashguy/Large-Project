@@ -5,10 +5,11 @@ import {
     // GetCardById,
 } from "../controller/card.manage.controller";
 import {
-    GetUserCards,
+    // GetUserCards,
     AddCardToUserCollection,
     Unlock4CardsByType,
     RemoveCardFromUserCollection,
+    SearchUserCards,
 } from "../controller/card.user.controller";
 import {
     SendTradeRequest,
@@ -28,10 +29,11 @@ router.get("/type/:type", GetCardsByType);
 // router.get("/:cardId", GetCardById);
 
 // Protected routes - User's card collection
-router.get("/collection/:type?", securityRoute, GetUserCards);
+// router.get("/collection/:type?", securityRoute, GetUserCards);
 router.post("/collection/add", securityRoute, AddCardToUserCollection);
 router.post("/collection/unlock/:type", securityRoute, Unlock4CardsByType);
 router.delete("/collection/:cardId", securityRoute, RemoveCardFromUserCollection);
+router.get("/collection/search", securityRoute, SearchUserCards);
     
 // Trade routes
 router.post("/trade", securityRoute, SendTradeRequest);

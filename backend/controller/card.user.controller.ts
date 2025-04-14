@@ -1,78 +1,78 @@
 import { ObjectId } from "mongodb";
 import { collections } from "../lib/mongo.lib";
 
-export const GetUserCards = async (req: any, res: any): Promise<void> => {
-  try {
-    const userID = req.info._id;
-    const { type } = req.params; // Can be 'breakfast', 'dinner', 'dessert', or undefined for all
+// export const GetUserCards = async (req: any, res: any): Promise<void> => {
+//   try {
+//     const userID = req.info._id;
+//     const { type } = req.params; // Can be 'breakfast', 'dinner', 'dessert', or undefined for all
     
-    const userCollection = await collections.users();
+//     const userCollection = await collections.users();
     
-    // Get user to find card_count ID
-    const user = await userCollection.findOne({ _id: userID });
+//     // Get user to find card_count ID
+//     const user = await userCollection.findOne({ _id: userID });
     
-    if (!user) {
-      return res.status(404).json({ success: false, msg: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ success: false, msg: "User not found" });
+//     }
     
-    const cardCountCollection = await collections.cardCount();
+//     const cardCountCollection = await collections.cardCount();
     
-    // Use aggregation to get populated card details
-    const pipeline = [
-      // Match the user's card count document
-      { $match: { _id: user.cards_unlocked } },
+//     // Use aggregation to get populated card details
+//     const pipeline = [
+//       // Match the user's card count document
+//       { $match: { _id: user.cards_unlocked } },
       
-      // Only keep the relevant card type array
-      { $project: { [type]: 1, _id: 0 } },
+//       // Only keep the relevant card type array
+//       { $project: { [type]: 1, _id: 0 } },
       
-      // Unwind to work with individual cards
-      { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
+//       // Unwind to work with individual cards
+//       { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
             
-      // Lookup the card details
-      { $lookup: {
-          from: "cards",
-          localField: "${type}.uCard_Id",
-          foreignField: "_id",
-          as: "cardDetails"
-      }},
+//       // Lookup the card details
+//       { $lookup: {
+//           from: "cards",
+//           localField: "${type}.uCard_Id",
+//           foreignField: "_id",
+//           as: "cardDetails"
+//       }},
       
-      // Unwind the cardDetails array (will contain only one item)
-      { $unwind: "$cardDetails" },
+//       // Unwind the cardDetails array (will contain only one item)
+//       { $unwind: "$cardDetails" },
       
-      // Combine count with card details
-      { $project: {
-          _id: "$cardDetails._id",
-          name: "$cardDetails.name",
-          image: "$cardDetails.image",
-          stars: "$cardDetails.stars",
-          description: "$cardDetails.description",
-          type: "$cardDetails.type",
-          grid_id: "$cardDetails.grid_id",
-          count: `$${type}.count`
-      }},
+//       // Combine count with card details
+//       { $project: {
+//           _id: "$cardDetails._id",
+//           name: "$cardDetails.name",
+//           image: "$cardDetails.image",
+//           stars: "$cardDetails.stars",
+//           description: "$cardDetails.description",
+//           type: "$cardDetails.type",
+//           grid_id: "$cardDetails.grid_id",
+//           count: `$${type}.count`
+//       }},
       
-      // Group all cards back together
-      { $group: {
-          _id: null,
-          cards: { $push: "$$ROOT" }
-      }},
-    ];
+//       // Group all cards back together
+//       { $group: {
+//           _id: null,
+//           cards: { $push: "$$ROOT" }
+//       }},
+//     ];
     
-    // Run aggregation
-    const result = await cardCountCollection.aggregate(pipeline).toArray();
+//     // Run aggregation
+//     const result = await cardCountCollection.aggregate(pipeline).toArray();
     
-    // If no results, return empty array
-    if (result.length === 0) {
-      return res.status(200).json({ success: true, data: [] });
-    }
+//     // If no results, return empty array
+//     if (result.length === 0) {
+//       return res.status(200).json({ success: true, data: [] });
+//     }
     
-    return res.status(200).json({ success: true, data: result[0].cards });
+//     return res.status(200).json({ success: true, data: result[0].cards });
     
-  } catch (error) {
-    console.error("GetUserCards error:", error);
-    return res.status(500).json({ success: false, msg: "Internal Server Error" });
-  }
-};
+//   } catch (error) {
+//     console.error("GetUserCards error:", error);
+//     return res.status(500).json({ success: false, msg: "Internal Server Error" });
+//   }
+// };
 
 export const AddCardToUserCollection = async (req: any, res: any): Promise<void> => {
   try {
@@ -223,6 +223,10 @@ export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
       }
     ]).toArray();
 
+    /* if (!getTypeArray || getTypeArray.length === 0 || !getTypeArray[0].cardDetails) {
+      return res.status(200).json({ success: true, data: [] });
+    } */
+    
     const cardTypeList = getTypeArray[0].cardDetails;
 
     const cardCountCollection = await collections.cardCount();
@@ -267,6 +271,100 @@ export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
     
   } catch (error) {
     console.error("UnlockCardsByType error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const SearchUserCards = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const searchQuery = req.query.q;
+    const type = req.query.type; // Optional: e.g., 'breakfast', 'dinner', 'dessert'
+    
+    if (!searchQuery) {
+      return res.status(400).json({ success: false, msg: "Search query 'q' is required." });
+    }
+    
+    // Get the user document so we can access their cards_unlocked reference
+    const userCollection = await collections.users();
+    const user = await userCollection.findOne({ _id: userID });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found." });
+    }
+    
+    const cardCountCollection = await collections.cardCount();
+    
+    const buildPipelineForType = (cardType: string) => ([
+      // Match the cardCount document for the user
+      { $match: { _id: user.cards_unlocked } },
+      
+      // Project the dynamic field using $getField, placing it into a fixed alias "cards"
+      { $project: { 
+          cards: { 
+             $getField: { 
+              field: { $literal: cardType }, 
+              input: "$$ROOT" 
+            } 
+          },
+          _id: 0 
+      } },
+      
+      // Unwind the "cards" array to process individual elements
+      { $unwind: { path: "$cards", preserveNullAndEmptyArrays: true } },
+      
+      // Look up the detailed card information from the "cards" collection
+      { $lookup: {
+          from: "cards",
+          localField: "cards.uCard_Id",
+          foreignField: "_id",
+          as: "cardDetails"
+      } },
+      
+      // Unwind the "cardDetails" array (should yield exactly one card per entry)
+      { $unwind: "$cardDetails" },
+      
+      // Filter by card name using a case-insensitive regex match
+      { $match: { "cardDetails.name": { $regex: searchQuery, $options: "i" } } },
+      
+      // Project the desired fields, including the count
+      { $project: {
+          _id: "$cardDetails._id",
+          name: "$cardDetails.name",
+          image: "$cardDetails.image",
+          stars: "$cardDetails.stars",
+          description: "$cardDetails.description",
+          type: "$cardDetails.type",
+          grid_id: "$cardDetails.grid_id",
+          count: "$cards.count"
+      } },
+      
+      // Group all matching cards into an array
+      { $group: {
+          _id: null,
+          cards: { $push: "$$ROOT" }
+      } }
+    ]);    
+    
+    let results = [];
+    // If a type is provided, validate and run the pipeline for that type.
+    if (type) {
+      if (!["Breakfast", "Lunch", "Dinner", "Dessert"].includes(type)) {
+        return res.status(400).json({ success: false, msg: "Invalid card type provided." });
+      }
+      results = await cardCountCollection.aggregate(buildPipelineForType(type)).toArray();
+    } else {
+      // If no type is provided, run the pipeline for each type and merge the results
+      const types = ["Breakfast", "Lunch", "Dinner", "Dessert"];
+      for (const t of types) {
+        const resForType = await cardCountCollection.aggregate(buildPipelineForType(t)).toArray();
+        results.push(...resForType);
+      }
+    }
+    
+    return res.status(200).json({ success: true, data: results });
+    
+  } catch (error) {
+    console.error("SearchUserCards error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };
