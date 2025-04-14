@@ -164,6 +164,107 @@ export const CheckAuth = (req: any, res: any) => {
   }
 };
 
+export const ChangeUsername = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { newUsername } = req.body;
+    if (!newUsername) {
+      return res.status(400).json({ success: false, msg: "New username is required" });
+    }
+    // Ensure new username has no spaces
+    if ((/\s/).test(newUsername)) {
+      return res.status(400).json({ success: false, msg: "Username must not contain spaces" });
+    }
+
+    const userCollection = await collections.users();
+    // Check if another user already has this username
+    const existingUser = await userCollection.findOne({
+      username: newUsername,
+      _id: { $ne: userID }
+    });
+    if (existingUser) {
+      return res.status(400).json({ success: false, msg: "Username already taken" });
+    }
+    
+    const updateResult = await userCollection.updateOne(
+      { _id: userID },
+      { $set: { username: newUsername } }
+    );
+    
+    if (updateResult.modifiedCount === 1) {
+      const updatedUser = await userCollection.findOne({ _id: userID });
+      if (!updatedUser) {
+        return res.status(404).json({ success: false, msg: "User not found" });
+      }
+      const { password, ...userData } = updatedUser;
+      return res.status(200).json({ success: true, msg: "Username updated successfully", data: userData });
+    } else {
+      return res.status(400).json({ success: false, msg: "Failed to update username" });
+    }
+  } catch (error) {
+    console.error("ChangeUsername error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const ChangePassword = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, msg: "Old password and new password are required" });
+    }
+
+    // Validate new password criteria
+    const hasLength = newPassword.length >= 8;
+    const hasNumber = (/\d/).test(newPassword);
+    const hasSymbol = (/[^\w\s]/).test(newPassword);
+    const hasSpaces = (/\s/).test(newPassword);
+    if (!hasLength) {
+      return res.status(400).json({ success: false, msg: "New password must be at least 8 characters long" });
+    }
+    if (!hasNumber) {
+      return res.status(400).json({ success: false, msg: "New password must contain at least one digit" });
+    }
+    if (!hasSymbol) {
+      return res.status(400).json({ success: false, msg: "New password must contain at least one special character" });
+    }
+    if (hasSpaces) {
+      return res.status(400).json({ success: false, msg: "New password must not contain spaces" });
+    }
+
+    const userCollection = await collections.users();
+    const user = await userCollection.findOne({ _id: userID });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    // Compare provided old password with stored hashed password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, msg: "Old password is incorrect" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    const updateResult = await userCollection.updateOne(
+      { _id: userID },
+      { $set: { password: hashedPassword } }
+    );
+    
+    if (updateResult.modifiedCount === 1) {
+      return res.status(200).json({ success: true, msg: "Password updated successfully" });
+    } else {
+      return res.status(400).json({ success: false, msg: "Failed to update password" });
+    }
+  } catch (error) {
+    console.error("ChangePassword error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
 export const DeleteAccount = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
