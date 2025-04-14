@@ -11,3 +11,9 @@ export const HomeInfo = [
     ["Friends", friendImage, "bg-teal-500", "Trade cards", "/friends"], 
     ["Battle", battleImage, "bg-rose-500", "BATTLE WITH FRIENDS", "/battle"]
 ];
+
+export const typeColors = {
+    breakfast: "bg-teal-300 border-teal-700",
+    dinner: "bg-amber-600 border-amber-900",
+    dessert: "bg-purple-300 border-purple-700"
+};

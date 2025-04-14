@@ -1,8 +1,16 @@
+import { useEffect } from "react"
+
 const Gacha = () => {
+  useEffect(() => {
+    document.title = "Gacha"
+  }, [])
+  
   return (
-    <div>
-      Gacha
-    </div>
+    <>
+      <div className="">
+        
+      </div>
+    </>
   )
 }
 

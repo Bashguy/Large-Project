@@ -1,8 +1,15 @@
+import { useEffect } from "react"
+
 const Battle = () => {
+
+  useEffect(() => {
+    document.title = "Battle";
+  }, [])
+
   return (
     <div className="h-screen select-none font-mono overflow-hidden">
       <div className="h-full w-full flex items-center justify-center">
-
+        
         <div className="border-1 h-9/10 w-3/4 bg-white">
           <div className="flex flex-col lg:flex-row h-full w-full">
             {/* Timer */}

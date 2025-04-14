@@ -14,6 +14,12 @@ const Register = () => {
     password: ""
   });
 
+  const [ pageTitle, setPageTitle ] = useState("Login");
+
+  useEffect(() => {
+    document.title = pageTitle
+  }, [])
+
   const [showPass, setShowPass] = useState(false);
   const [flip, setFlip] = useState(false);
 
@@ -73,7 +79,7 @@ const Register = () => {
           <div className="pointer-events-none absolute inset-0 w-full h-full bg-transparent perspective-distant transition-all transform-3d z-10">
             <div className={`pointer-events-auto h-1/2 w-full xl:w-1/2 xl:h-full absolute bottom-0 xl:right-0 max-xl:origin-top xl:origin-left max-xl:rounded-b-2xl xl:rounded-r-2xl border-1 duration-750 backface-hidden bg-[#f1bf7e] ${flip ? "max-xl:rotate-x-180 xl:-rotate-y-180" : "max-xl:rotate-x-0 xl:rotate-y-0 max-xl:hover:rotate-x-5 xl:hover:-rotate-y-5"}`} onClick={() => setFlip(true)}>
               {/* #2 Page info */}
-              <div className="h-full w-full flex items-center justify-center cursor-pointer">
+              <div className="h-full w-full flex items-center justify-center cursor-pointer" onClick={() => setPageTitle("Signup")}>
                 Go to Signup -&gt;
               </div>
 
@@ -99,7 +105,9 @@ const Register = () => {
                     Contains at least one uppercase letter
                   </div>
                 </div>
-                &lt;- Go to Login
+                <div onClick={() => setPageTitle("Login")}>
+                  &lt;- Go to Login
+                </div>
               </div>
 
               {/* Page #3 */}

@@ -1,46 +1,33 @@
+import starImage from "../assets/star.svg"
+import { typeColors } from "../constant/home"
+
 const Card = (props) => {
-  // Color mapping based on type
-  const typeColors = {
-    breakfast: "bg-red-100 border-red-400",
-    dinner: "bg-green-100 border-green-400",
-    dessert: "bg-purple-100 border-purple-400"
-  };
-
-  // Get background color class based on type
-  const cardColorClass = typeColors[props.type] || "bg-gray-100 border-gray-400";
-
-  // Render stars based on rating
-  const renderStars = () => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <div className='size-2 border-1 mx-1'></div>
-      );
-    }
-    return stars;
-  };
 
   return (
-    <>
-      <div className={`w-64 h-96 rounded-xl ${cardColorClass} border-2 flex flex-col overflow-hidden shadow-lg`}>
+    <div className="relative flex items-center justify-center">
+      <div className={`w-50 h-80 hover:scale-105 rounded-xl ${typeColors[props.type]} ${props.locked && "grayscale-100"} border-2 flex flex-col overflow-hidden shadow-lg transition duration-100 cursor-pointer 
+        ${props.shrink && ""}`}
+      >
         {/* Title */}
-        <div className="flex justify-center items-center p-3 border-b border-opacity-30 bg-white bg-opacity-30">
-          <div className="font-bold text-xl">{props.title}</div>
+        <div className="flex justify-center items-center p-2 border-b bg-white">
+          <div className="font-bold text-lg">{props.title}</div>
         </div>
 
         {/* Rating */}
         <div className="flex justify-center items-center py-2">
-          <div className="flex">
-            {renderStars()}
+          <div className="flex flex-row">
+            {[...Array(props.stars)].map((_, index) => (
+              <img key={index} src={starImage} alt="★" className="size-5 mx-0.5" onDragStart={(e) => e.preventDefault()} />
+            ))} 
           </div>
         </div>
 
         {/* Image */}
         <div className="w-full px-2">
           <img
-            src={props.image || ""}
+            src={props.image || "https://www.kew.org/sites/default/files/styles/original/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=RhcGjOE3"}
             alt={props.title}
-            className="w-full h-40 border-1 object-cover rounded-md"
+            className="w-full h-full border-1 object-cover rounded-md"
           />
         </div>
 
@@ -50,11 +37,16 @@ const Card = (props) => {
         </div>
 
         {/* Attack */}
-        <div className="p-3 flex justify-center items-center border-t border-opacity-30">
+        <div className="p-2 flex justify-center items-center border-t">
           <span className="font-bold text-lg">{props.power}</span>
         </div>
       </div>
-    </>
+      {props.count !== 0 && 
+        <div className="absolute -bottom-10 w-fit h-10 flex items-center justify-center z-10">
+          {props.count}
+        </div>
+      }
+    </div>
   )
 }
 

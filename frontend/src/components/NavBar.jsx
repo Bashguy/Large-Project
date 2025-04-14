@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import friendImage from '../assets/friends.svg';
+import picnicImage from '../assets/picnick.svg';
 import { Link } from 'react-router-dom';
 
 const NavBar = () => {
@@ -24,8 +24,9 @@ const NavBar = () => {
           {/* Homepage */}
           <Link to="/" className='mr-[5%]'>
             <div className="hover:scale-110 transition duration-250 cursor-pointer w-fit text-[3vw] xl:text-[2vw] flex items-center gap-4 pointer-events-auto">
-              <img src={friendImage} alt="Home" className='size-[4vw] xl:size-[3vw]' />
-              PicCard
+              Picnic
+              <img src={picnicImage} alt="Home" className='size-[4vw] xl:size-[3vw] mb-2' />
+              Pickup
             </div>
           </Link>
 
