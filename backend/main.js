@@ -1,7 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import { connectDB } from './db/pantry.js'
 import authRoutes from './auth.js'
 import friendRoutes from './routes/friends.js'
 
@@ -24,5 +23,5 @@ app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
 
 app.listen(PORT, () => {
-    console.log("Listening on port " + PORT);
+    console.log("Listening on Server " + PORT);
 });
