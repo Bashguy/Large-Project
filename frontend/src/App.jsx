@@ -13,10 +13,10 @@ import Collections from './pages/Collections'
 import Weather from './components/Weather'
 import AuthProtectedRoute from './components/AuthRoute';
 import useAuthStore from './store/authStore'
+import LandingPage from './pages/LandingPage'
 
 function App() {
   const { checkAuth, isAuthenticated } = useAuthStore();
-    
   // Check authentication status when app loads
   useEffect(() => {
     checkAuth();
@@ -41,6 +41,7 @@ function App() {
           <Route path='/friends' element={<Friends />} />
           <Route path='/battle' element={<Battle />} />
           <Route path='/settings' element={<Settings />} />
+          <Route path= '/LandingPage' element = {<LandingPage/>}/>
         </Route>
 
         {/* Default route */}
