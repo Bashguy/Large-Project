@@ -30,8 +30,7 @@ function InputField({ field, sendTo, placeholder }) {
         />
         <input disabled={disabled} 
         onChange={(e) => setInput(e.target.value)}
-        type="text" n="name" 
-        id="name" placeholder={placeholder} 
+        type="text" placeholder={placeholder} 
         className="w-3/5 p-2 disabled:bg-[#F1BF7E] bg-white"/>
     </div>
   )

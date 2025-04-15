@@ -1,9 +1,17 @@
 import CardsList from "../components/cardsList"
-import {useState, createContext, useContext} from 'react'
-import { useCard } from "../context/CardContext"
+import {useState} from 'react'
+
 
 export const Collections = () => {
-  const [showInfo, setShowInfo] = useState(false)
+  const [viewCard, setViewCard] = useState(false)
+  const [card, setCard] = useState({
+    name: "Potato",
+    stars: 5,
+    color: "#000000",
+    img: "potato",
+    description: "the Mighty potato"
+  })
+  
   //const [search, setSearch] = useState("")
 
   // function to get number of cards collected from API
@@ -26,7 +34,7 @@ export const Collections = () => {
 
   return (
     <div>
-        {showInfo && <ViewCard setShowInfo={showInfo} />}
+        {viewCard && <ViewCard setCard={setCard} setViewCard={setViewCard}/>}
 
         <div className="flex w-screen h-screen justify-center">
           {/* Unfied Pantry Item*/}
@@ -55,10 +63,7 @@ export const Collections = () => {
           
           {/* Collections */}
             <div className='w-full h-4/5 align-middle text-center bg-orange-300 overflow-auto'>
-              <h3 className='m-5'>Breakfast</h3>
                 <CardsList />
-              <h3 className='m-5'>Dinner</h3>
-              <h3 className='m-5'>Dessert</h3>
             </div>
         </div>
 
