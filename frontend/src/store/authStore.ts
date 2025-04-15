@@ -4,16 +4,16 @@ import { authApi } from '../services/api';
 
 const useAuthStore = create((set: any, get: any) => ({
     user: null,
-    isAuthenticated: true,
+    isAuthenticated: false,
     isLoading: false,
     msg: null,
 
     setUser: (user) => set({ user }),
     
-    login: async (email, password) => {
+    login: async (username, password) => {
       set({ isLoading: true, msg: null });
       try {
-        const response = await authApi.login({ email, password });
+        const response = await authApi.login({ username, password });
         if (response.success && response.data) {
           set({ 
             user: response.data,
@@ -34,15 +34,16 @@ const useAuthStore = create((set: any, get: any) => ({
       }
     },
     
-    signup: async (username, email, password) => {
+    signup: async (email, username, password) => {
       set({ isLoading: true, msg: null });
       try {
-        const response = await authApi.signup({ username, email, password });
+        const response = await authApi.signup({ email, username, password });
         if (response.success && response.data) {
           set({ 
             msg: response.msg || 'Signup successful',
             isLoading: false 
           });
+          return response.success;
         } else {
           set({ 
             msg: response.msg || 'Signup failed', 
@@ -60,12 +61,14 @@ const useAuthStore = create((set: any, get: any) => ({
     logout: async () => {
       set({ isLoading: true });
       try {
-        await authApi.logout();
+        const response = await authApi.logout();
         set({ 
           user: null, 
+          msg: response.msg || 'Successfully logged out', 
           isAuthenticated: false, 
           isLoading: false 
         });
+        return response;
       } catch (error) {
         set({ 
           user: null, 

@@ -48,14 +48,14 @@ export const authApi = {
       body: JSON.stringify(userData)
     }),
   
-  login: (credentials) => 
+  login: (userData) => 
     fetchApi('/auth/login', {
       method: 'POST',
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(userData)
     }),
   
   logout: () => 
-    fetchApi('/auth/logout', ),
+    fetchApi('/auth/logout',{ method: 'POST' }),
   
   checkAuth: () => 
     fetchApi('/auth/check'),
@@ -105,12 +105,6 @@ export const cardApi = {
 export const userCardApi = {
   getUserCards: (type) => 
     fetchApi(type ? `/card/collection/${type}` : '/card/collection'),
-  
-  addCardToCollection: (cardId) => 
-    fetchApi('/card/collection/add', {
-      method: 'POST',
-      body: JSON.stringify({ cardId })
-    }),
   
   removeCardFromCollection: (cardId) => 
     fetchApi(`/card/collection/${cardId}`, { method: 'DELETE' }),

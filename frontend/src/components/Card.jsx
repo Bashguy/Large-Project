@@ -42,7 +42,7 @@ const Card = (props) => {
         </div>
       </div>
       {props.count !== 0 && 
-        <div className="absolute -bottom-10 w-fit h-10 flex items-center justify-center z-10">
+        <div className="absolute -bottom-10 w-fit h-10 flex items-center justify-center z-5">
           {props.count}
         </div>
       }

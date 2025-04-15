@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi, cardApi, userCardApi, tradeApi } from '../src/services/api';
-import useAuthStore from '../src/store/authStore';
+import { authApi, cardApi, userCardApi, tradeApi } from '../services/api';
+import useAuthStore from '../store/authStore';
 
 // ==================== Auth Queries ====================
 
@@ -101,20 +101,6 @@ export const useUserCards = (type) => {
       return response.data || [];
     },
     enabled: isAuthenticated
-  });
-};
-
-export const useAddCardToCollection = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (cardId) => {
-      const response = await userCardApi.addCardToCollection(cardId);
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userCards'] });
-    }
   });
 };
 

@@ -1,9 +1,19 @@
 import { useState } from 'react';
 import picnicImage from '../assets/picnick.svg';
 import { Link } from 'react-router-dom';
+import useAuthStore from "../store/authStore"
+import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
-  const [user, setUser] = useState(true)
+  const { logout, user, isLoading, msg } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+
+    const result = await logout();
+    if (result.success) navigate('/register');
+  };
 
   return (
     <div className='font-mono select-none'>
@@ -15,11 +25,12 @@ const NavBar = () => {
         <div className='w-full h-full flex items-center justify-around backdrop-blur-xs pointer-events-none'>
           
           {/* Logout */}
-          <Link to="/register" className={user ? "" : "hidden"}>
-            <div className="hover:scale-110 transition duration-250 cursor-pointer w-fit text-[3vw] xl:text-[2vw] pointer-events-auto">
-              &lt; Logout
-            </div>
-          </Link>
+          <div 
+            className={`${user ? "" : "hidden"} hover:scale-110 transition duration-250 cursor-pointer w-fit text-[3vw] xl:text-[2vw] pointer-events-auto`}
+            onClick={handleLogout}
+          >
+            &lt; Logout
+          </div>
 
           {/* Homepage */}
           <Link to="/" className='mr-[5%]'>

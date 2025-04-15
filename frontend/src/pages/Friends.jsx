@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import friendImage from "../assets/friends.svg";
 import Card from "../components/Card";
+import { 
+  useFriends, 
+  useAddFriend, 
+  useRemoveFriend, 
+  useUserTrades, 
+  useSendTradeRequest, 
+  useAcceptTrade, 
+  useDeclineTrade 
+} from '../hooks/useQueries';
 
 const ConfirmationModal = ({ isConfirmOpen, onClose, onConfirm, actionType }) => {
   const handleModalClick = (e) => {
@@ -69,6 +78,9 @@ const Modal = ({ isOpen, onClose, status = 'sent' }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [actionType, setActionType] = useState(null);
 
+  const acceptTradeMutation = useAcceptTrade();
+  const declineTradeMutation = useDeclineTrade();
+
   const handleAction = (action) => {
     setActionType(action);
     setShowConfirmation(true);
@@ -76,6 +88,12 @@ const Modal = ({ isOpen, onClose, status = 'sent' }) => {
 
   // Do stuff in the database
   const handleConfirm = () => {
+    if (actionType === 'accept') {
+      acceptTradeMutation.mutate(tradeData.id);
+    } else if (actionType === 'deny' || actionType === 'cancel') {
+      declineTradeMutation.mutate(tradeData.id);
+    }
+    
     setShowConfirmation(false);
     onClose();
   };
@@ -431,36 +449,47 @@ const UnfriendModal = ({ isOpen, onClose, friendName, onConfirm }) => {
 };
 
 const Friends = () => {
+  // State for modals
   const [show, setShow] = useState(true);
   const [openModal, setOpenModal] = useState(false);
-  const [tradeStatus, setTradeStatus] = useState(""); // 'sent' or 'received'
-  
-  // New states for additional modals
+  const [tradeStatus, setTradeStatus] = useState("");
   const [openTradeCreation, setOpenTradeCreation] = useState(false);
   const [openUnfriend, setOpenUnfriend] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState("");
   const [newFriendUsername, setNewFriendUsername] = useState("");
+  const [selectedTradeId, setSelectedTradeId] = useState(null);
 
-  const handleUnfriendClick = (friendName) => {
-    setSelectedFriend(friendName);
+  // Fetch friends data
+  const { data: friends = [], isLoading: isLoadingFriends } = useFriends();
+  
+  // Fetch trades data
+  const { data: trades = { sent: [], received: [] }, isLoading: isLoadingTrades } = useUserTrades();
+  
+  // Mutation hooks
+  const addFriend = useAddFriend();
+  const removeFriend = useRemoveFriend();
+  const sendTradeRequest = useSendTradeRequest();
+  const acceptTrade = useAcceptTrade();
+  const declineTrade = useDeclineTrade();
+
+  const handleUnfriendClick = (friend) => {
+    setSelectedFriend(friend);
     setOpenUnfriend(true);
   };
 
-  const handleTradeClick = (friendName) => {
-    setSelectedFriend(friendName);
+  const handleTradeClick = (friend) => {
+    setSelectedFriend(friend);
     setOpenTradeCreation(true);
   };
 
   const handleUnfriend = () => {
-    console.log("Unfriending:", selectedFriend);
-    // Here you would handle the actual unfriending in your database
+    removeFriend.mutate(selectedFriend.id);
   };
 
   const handleAddFriend = (e) => {
     e.preventDefault();
     if (newFriendUsername.trim()) {
-      console.log("Adding friend:", newFriendUsername);
-      // Here you would handle the actual friend request in your database
+      addFriend.mutate(newFriendUsername);
       setNewFriendUsername("");
     }
   };

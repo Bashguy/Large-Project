@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import useAuthStore from "../store/authStore"
 
 const Register = () => {
   const [ loginForm, setLoginForm ] = useState({
@@ -7,14 +8,36 @@ const Register = () => {
   });
 
   const [ signUpForm, setSignUpForm ] = useState({
-    firstName: "", 
-    lastName: "", 
     email: "", 
     username: "", 
     password: ""
   });
 
   const [ pageTitle, setPageTitle ] = useState("Login");
+  const { login, signup, isLoading, msg } = useAuthStore();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    await login(loginForm.username, loginForm.password);
+    console.log(msg);
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+
+    const result = await signup(signUpForm.email, signUpForm.username, signUpForm.password);
+    if (result) {
+      setPageTitle("Login");
+      setFlip(false);
+      setShowPass(false);
+
+      setSignUpForm({ email: "", username: "", password: "" })
+      console.log(msg);
+    } else {
+      console.log(msg);
+    }
+  };
 
   useEffect(() => {
     document.title = pageTitle
@@ -68,7 +91,12 @@ const Register = () => {
               </div>
 
               {/* Submit button */}
-              <button className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] text-[min(15px,75px)] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer">Submit</button>
+              <button 
+                className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] text-[min(15px,75px)] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer"
+                onClick={handleLogin}
+              >
+                  Submit
+              </button>
             </div>
 
             {/* Page #1 */}
@@ -120,37 +148,6 @@ const Register = () => {
             <span className="flex justify-center my-4 mx-6 py-2 px-4 rounded-full shadow-[6px_8px_6px_0px_rgba(0,0,0,0.3)] text-[1.25vw] bg-white font-bold">New User</span>
 
             <div className="h-full pb-28 flex items-center justify-center flex-col space-y-2 px-8 mt-4">
-              
-              {/* First Name and Last Name */}
-              <div className="flex flex-row space-x-4">
-                <div className="flex-col">
-                  <span className="text-[1vw]">First Name:</span>
-                  <input 
-                    type="text"
-                    className="w-full mt-1 bg-white text-[#aa6445] rounded-sm p-1 ring transition ease-in-out hover:scale-105 focus:scale-105 focus:outline-none"
-                    placeholder="Enter first"
-                    value={signUpForm.firstName}
-                    onChange={(e) => { 
-                      setSignUpForm({ ...signUpForm, firstName: e.target.value });
-                      setTimeout(() => e.target.focus(), 25);
-                  }}
-                  />
-                </div>
-
-                <div className="flex-col">
-                  <span className="text-[1vw]">Last Name:</span>
-                  <input 
-                    type="text"
-                    className="w-full mt-1 bg-white text-[#aa6445] rounded-sm p-1 ring transition ease-in-out hover:scale-105 focus:scale-105 focus:outline-none"
-                    placeholder="Enter last"
-                    value={signUpForm.lastName}
-                    onChange={(e) => { 
-                      setSignUpForm({ ...signUpForm, lastName: e.target.value });
-                      setTimeout(() => e.target.focus(), 25);
-                    }}
-                  />
-                </div>
-              </div>
 
               {/* Email */}
               <div className="w-full">
@@ -201,7 +198,12 @@ const Register = () => {
               </div>
 
               {/* Submit */}
-              <button className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer">Submit</button>
+              <button 
+                className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer"
+                onClick={handleSignUp}
+              >
+                Submit
+              </button>
             </div>
 
             {/* First Name and Last Name */}

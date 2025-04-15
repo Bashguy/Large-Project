@@ -17,56 +17,101 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
     
     const cardCountCollection = await collections.cardCount();
     
-    // Use aggregation to get populated card details
-    const pipeline = [
-      // Match the user's card count document
-      { $match: { _id: user.cards_unlocked } },
-      
-      // Only keep the relevant card type array
-      { $project: { [type]: 1, _id: 0 } },
-      
-      // Unwind to work with individual cards
-      { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
+    if (type && ["breakfast", "dinner", "dessert"].includes(type)) {
+      // Use aggregation to get populated card details
+      const pipeline = [
+        // Match the user's card count document
+        { $match: { _id: user.cards_unlocked } },
+        
+        // Only keep the relevant card type array
+        { $project: { [type]: 1, _id: 0 } },
+        
+        // Unwind to work with individual cards
+        { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
 
-      // Lookup the card details
-      { $lookup: {
-          from: "cards",
-          localField: `${type}.uCard_Id`,
-          foreignField: "_id",
-          as: "cardDetails"
-      }},
-      
-      // Unwind the cardDetails array (will contain only one item)
-      { $unwind: "$cardDetails" },
-      
-      // Combine count with card details
-      { $project: {
-          _id: "$cardDetails._id",
-          name: "$cardDetails.name",
-          image: "$cardDetails.image",
-          stars: "$cardDetails.stars",
-          description: "$cardDetails.description",
-          type: "$cardDetails.type",
-          grid_id: "$cardDetails.grid_id",
-          count: `$${type}.count`
-      }},
-      
-      // Group all cards back together
-      { $group: {
-          _id: null,
-          cards: { $push: "$$ROOT" }
-      }},
-    ];
+        // Lookup the card details
+        { $lookup: {
+            from: "cards",
+            localField: `${type}.uCard_Id`,
+            foreignField: "_id",
+            as: "cardDetails"
+        }},
+        
+        // Unwind the cardDetails array (will contain only one item)
+        { $unwind: "$cardDetails" },
+        
+        // Combine count with card details
+        { $project: {
+            _id: "$cardDetails._id",
+            name: "$cardDetails.name",
+            image: "$cardDetails.image",
+            stars: "$cardDetails.stars",
+            description: "$cardDetails.description",
+            type: "$cardDetails.type",
+            grid_id: "$cardDetails.grid_id",
+            count: `$${type}.count`
+        }},
+        
+        // Group all cards back together
+        { $group: {
+            _id: null,
+            cards: { $push: "$$ROOT" }
+        }},
+      ];
     
     // Run aggregation
-    const result = await cardCountCollection.aggregate(pipeline).toArray();
-    
-    // If no results, return empty array
-    if (result.length === 0) {
-      return res.status(200).json({ success: true, data: [] });
-    }
-    
-    return res.status(200).json({ success: true, data: result[0].cards });
+      const result = await cardCountCollection.aggregate(pipeline).toArray();
+      
+      // If no results, return empty array
+      if (result.length === 0) {
+        return res.status(200).json({ success: true, data: [] });
+      }
+      
+      return res.status(200).json({ success: true, data: result[0].cards });
+    } else {
+        const cardCount = await cardCountCollection.findOne({ _id: user.cards_unlocked });
+        
+        if (!cardCount) {
+          return res.status(200).json({ success: true, data: [] });
+        }
+        
+        // Process each card type separately and then combine results
+        const allCardTypes = ["breakfast", "dinner", "dessert"];
+        const allCards = [];
+        
+        for (const cardType of allCardTypes) {
+          if (!cardCount[cardType] || !Array.isArray(cardCount[cardType]) || cardCount[cardType].length === 0) {
+            continue;
+          }
+          
+          // Get all the card IDs for this type
+          const cardIds = cardCount[cardType].map(item => item.uCard_Id);
+          
+          // Fetch all the card details in one query
+          const cardCollection = await collections.cards();
+          const cardDetails = await cardCollection.find({ _id: { $in: cardIds } }).toArray();
+          
+          // Combine card details with count
+          const cardsWithCount = cardCount[cardType].map(item => {
+            const card = cardDetails.find(c => c._id.toString() === item.uCard_Id.toString());
+            if (card) {
+              return {
+                ...card,
+                count: item.count
+              };
+            }
+            return null;
+          }).filter(card => card !== null);
+          
+          // Add to the all cards array
+          allCards.push(...cardsWithCount);
+        }
+        
+        return res.status(200).json({
+          success: true,
+          data: allCards
+        });
+      }
     
   } catch (error) {
     console.error("GetUserCards error:", error);

@@ -13,6 +13,7 @@ export const HomeInfo = [
 ];
 
 export const typeColors = {
+    all: "bg-white",
     breakfast: "bg-teal-300 border-teal-700",
     dinner: "bg-amber-600 border-amber-900",
     dessert: "bg-purple-300 border-purple-700"
