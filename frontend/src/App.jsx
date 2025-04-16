@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import Admin_Login from './pages/Admin_Login'
 import Background from './components/Background'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -40,6 +41,7 @@ function App() {
           <Route path='/collection' element={<Collections />} />
           <Route path='/friends' element={<Friends />} />
           <Route path='/battle' element={<Battle />} />
+          <Route path='/admin_login' element={<Admin_Login />} />
           <Route path='/settings' element={<Settings />} />
         </Route>
 
