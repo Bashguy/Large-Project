@@ -3,8 +3,8 @@ import DeleteUser from "../components/settingsComponents/DeleteUser"
 import { useWeather } from "../context/WeatherContext"
 import InputField from "../components/settingsComponents/InputField"
 
-const Settings = ({curWeather, toggleWeather}) => {
-  const [confirmDelete, setConfirmDelete] = useState(false)  
+const Settings = ({ curWeather, toggleWeather }) => {
+  const [confirmDelete, setConfirmDelete] = useState(false)
   //const {weather, toggleWeather} = useWeather()
   const [userInfo, setUserInfo] = useState({
     name: "hai",
@@ -14,20 +14,21 @@ const Settings = ({curWeather, toggleWeather}) => {
   })
 
   const changeName = (newName) => {
-    setUserInfo({name: newName})
+    setUserInfo({ name: newName })
     alert(`Change to name ${userInfo.name}`)
     
   }
+
   const changeUserName = (newUser) => {
-    setUserInfo({...userInfo,username: newUser})
+    setUserInfo({ ...userInfo, username: newUser })
     alert(`Change to name ${userInfo.username}`)
   }
   const changeEmail = (newEmail) => {
-    setUserInfo({...userInfo,email: newEmail})
+    setUserInfo({ ...userInfo, email: newEmail })
     alert(`Change to name ${userInfo.email}`)
   }
   const changePassword = (newPass) => {
-    setUserInfo({...userInfo,password: newPass})
+    setUserInfo({ ...userInfo, password: newPass })
     alert(`Change to name ${userInfo.password}`)
   }
 
@@ -40,12 +41,12 @@ const Settings = ({curWeather, toggleWeather}) => {
           <h1>Settings</h1>
           <hr className="my-3"></hr>
           {/* The, er, actual settings */}
-          
+
           <div className="flex flex-col justify-around items-center m-5 h-3/4">
-          <div className="flex w-full justify-between items-center">
+            <div className="flex w-full justify-between items-center">
               <label className=''>Toggle Weather</label>
               <button className='rounded-lg px-5 p-2 hover:cursor-pointer hover:text-blue-200'
-              onClick={toggleWeather}> {curWeather ? 'Turn Off' : 'Turn On'} </button>
+                onClick={toggleWeather}> {curWeather ? 'Turn Off' : 'Turn On'} </button>
             </div>
 
             <InputField field={"Name"} sendTo={changeName} placeholder={userInfo.name} />
@@ -54,9 +55,9 @@ const Settings = ({curWeather, toggleWeather}) => {
             <InputField field={"Email"} sendTo={changeEmail} placeholder={userInfo.email} />
 
             <button className=" h-10 w-40 cursor-pointer border-3 bg-red-400 rounded-md"
-                    onClick={()=>setConfirmDelete(true)}
-                    >Delete All Data</button>
-                    {confirmDelete && <DeleteUser setConfirmDelete={setConfirmDelete} info={userInfo}/>}
+              onClick={() => setConfirmDelete(true)}
+            >Delete All Data</button>
+            {confirmDelete && <DeleteUser setConfirmDelete={setConfirmDelete} info={userInfo} />}
 
           </div>
         </div>
