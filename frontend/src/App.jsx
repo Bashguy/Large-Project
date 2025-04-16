@@ -11,14 +11,17 @@ import Friends from './pages/Friends'
 import Battle from './pages/Battle'
 import Collections from './pages/Collections'
 import Weather from './components/Weather'
-import { useWeather } from './context/WeatherContext'
+//import { useWeather } from './context/WeatherContext'
 
-const WeatherContext = createContext()
+//const WeatherContext = createContext()
 
 function App() {
+  const [weather, setWeather] = useState(true)
   const [ auth, setAuth ] = useState(true)
 
-  const {weather, setWeather} = useWeather()
+  const toggleWeather = () => {
+    setWeather(!weather)
+  }
   
   return (
     <div>
@@ -36,7 +39,7 @@ function App() {
         <Route path='/collection' element={<Collections />} />
         <Route path='/friends' element={<Friends />} />
         <Route path='/battle' element={<Battle />} />
-        <Route path='/settings' element={<Settings />}/>
+        <Route path='/settings' element={<Settings curWeather={weather} toggleWeather={toggleWeather} />}/>
       </Routes>
     </div>
   )

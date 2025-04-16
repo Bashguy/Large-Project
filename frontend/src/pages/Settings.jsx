@@ -3,9 +3,9 @@ import DeleteUser from "../components/settingsComponents/DeleteUser"
 import { useWeather } from "../context/WeatherContext"
 import InputField from "../components/settingsComponents/InputField"
 
-const Settings = () => {
+const Settings = ({curWeather, toggleWeather}) => {
   const [confirmDelete, setConfirmDelete] = useState(false)  
-  const {weather, toggleWeather} = useWeather()
+  //const {weather, toggleWeather} = useWeather()
   const [userInfo, setUserInfo] = useState({
     name: "hai",
     username: "hoi",
@@ -36,7 +36,7 @@ const Settings = () => {
       {/* The entire fuckin thing ig */}
       <div className="flex w-screen h-screen justify-center items-center">
         {/* The box itself */}
-        <div className="flex flex-col justify-center  w-4/5 h-4/5 bg-[#F1BF7E] text-center p-5 rounded-md">
+        <div className="flex flex-col justify-center  w-4/5 h-4/5 bg-[#F1BF7E] shadow-2xl text-center p-5 rounded-md">
           <h1>Settings</h1>
           <hr className="my-3"></hr>
           {/* The, er, actual settings */}
@@ -45,7 +45,7 @@ const Settings = () => {
           <div className="flex w-full justify-between items-center">
               <label className=''>Toggle Weather</label>
               <button className='rounded-lg px-5 p-2 hover:cursor-pointer hover:text-blue-200'
-              onClick={toggleWeather}> {weather ? 'Turn Off' : 'Turn On'} </button>
+              onClick={toggleWeather}> {curWeather ? 'Turn Off' : 'Turn On'} </button>
             </div>
 
             <InputField field={"Name"} sendTo={changeName} placeholder={userInfo.name} />

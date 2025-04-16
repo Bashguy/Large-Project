@@ -20,7 +20,7 @@ function InputField({ field, sendTo, placeholder }) {
     <div className="flex w-full justify-between items-center">
         <label className='' for="name" >{field}</label>
         <img className='w-10 h-10'
-        src={'frontend\src\assets\pencil.png'} 
+        src={'/pencil.png'} 
         onClick={() => {
           if(!disabled) {
             changeField()
@@ -31,7 +31,9 @@ function InputField({ field, sendTo, placeholder }) {
         <input disabled={disabled} 
         onChange={(e) => setInput(e.target.value)}
         type="text" placeholder={placeholder} 
-        className="w-3/5 p-2 disabled:bg-[#F1BF7E] bg-white"/>
+        className="w-3/5 p-2 disabled:text-[#000000] disabled:bg-[#F1BF7E] bg-white"
+        />
+
     </div>
   )
 }
