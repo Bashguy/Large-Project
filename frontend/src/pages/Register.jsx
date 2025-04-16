@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import useAuthStore from "../store/authStore"
+import toast from "react-hot-toast";
 
 const Register = () => {
   const [ loginForm, setLoginForm ] = useState({
@@ -14,28 +15,42 @@ const Register = () => {
   });
 
   const [ pageTitle, setPageTitle ] = useState("Login");
-  const { login, signup, isLoading, msg } = useAuthStore();
+  const { login, signup, isLoading } = useAuthStore();
+  const toastStyle = {
+    style: {
+      border: '1px solid #713200',
+      padding: '16px',
+      color: '#713200',
+    },
+    iconTheme: {
+      primary: '#713200',
+      secondary: '#FFFAEE',
+    },
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    await login(loginForm.username, loginForm.password);
-    console.log(msg);
+    const response = await login(loginForm.username, loginForm.password);
+    if (!response.success) {
+      toast.error(response.msg, toastStyle);
+    }
   };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    const result = await signup(signUpForm.email, signUpForm.username, signUpForm.password);
-    if (result) {
+    const response = await signup(signUpForm.email, signUpForm.username, signUpForm.password);
+    if (response.success) {
+      toast.success(response.msg, toastStyle);
+
       setPageTitle("Login");
       setFlip(false);
       setShowPass(false);
 
       setSignUpForm({ email: "", username: "", password: "" })
-      console.log(msg);
     } else {
-      console.log(msg);
+      toast.error(response.msg, toastStyle);
     }
   };
 

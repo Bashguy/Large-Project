@@ -5,14 +5,27 @@ import useAuthStore from "../store/authStore"
 import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
-  const { logout, user, isLoading, msg } = useAuthStore();
+  const { logout, user, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
     e.preventDefault();
 
     const result = await logout();
-    if (result.success) navigate('/register');
+    if (result.success) {
+      navigate('/register');
+      toast.success(result.msg, {
+        style: {
+          border: '1px solid #713200',
+          padding: '16px',
+          color: '#713200',
+        },
+        iconTheme: {
+          primary: '#713200',
+          secondary: '#FFFAEE',
+        },
+      });
+    }
   };
 
   return (
@@ -41,14 +54,18 @@ const NavBar = () => {
             </div>
           </Link>
 
-          {/* Settings */}
-          <Link to="/settings" className={user ? "" : "hidden"}>
-            <img 
-              src="https://preview.redd.it/spheal-pokemon-v0-dz3owudho96e1.gif?width=330&auto=webp&s=0ce440de858ee75dcf7d23e7c05be6530176032c" 
-              alt="Profile" 
-              className="hover:scale-110 transition duration-250 cursor-pointer size-[4vw] xl:size-[3vw] rounded-full bg-sky-500 object-cover pointer-events-auto" 
-            />
-          </Link>
+          <div className={`flex items-center justify-center space-x-5 ${user ? "" : "hidden"}`}>
+            <div className='font-bold text-2xl text-amber-900'>{user?.acorns}</div>
+
+            {/* Settings */}
+            <Link to="/settings">
+              <img 
+                src="https://preview.redd.it/spheal-pokemon-v0-dz3owudho96e1.gif?width=330&auto=webp&s=0ce440de858ee75dcf7d23e7c05be6530176032c" 
+                alt="Profile" 
+                className="hover:scale-110 transition duration-250 cursor-pointer size-[4vw] xl:size-[3vw] rounded-full bg-sky-500 object-cover pointer-events-auto" 
+              />
+            </Link>
+          </div>
 
         </div>
       </div>

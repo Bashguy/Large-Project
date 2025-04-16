@@ -4,6 +4,9 @@ import {
     LogIn, 
     LogOut, 
     CheckAuth, 
+    ChangeUsername,
+    ChangeEmail,
+    ChangePassword,
     DeleteAccount,
     AddFriend,
     RemoveFriend,
@@ -21,6 +24,9 @@ router.post("/logout", LogOut);
 
 // Protected routes
 router.get("/check", securityRoute, CheckAuth);
+router.post("/new-username", securityRoute, ChangeUsername);
+router.post("/new-email", securityRoute, ChangeEmail);
+router.post("/new-password", securityRoute, ChangePassword);
 router.delete("/delete", securityRoute, DeleteAccount);
 
 // Friend management

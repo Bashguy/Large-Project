@@ -119,6 +119,125 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
   }
 };
 
+export const GetFriendCards = async (req: any, res: any): Promise<void> => {
+  try {
+    // Get friendId from params
+    const { friendId, type } = req.params;
+    
+    const userCollection = await collections.users();
+    
+    // Get the friend user
+    const friend = await userCollection.findOne({ _id: ObjectId.createFromHexString(friendId) });
+    
+    if (!friend) {
+      return res.status(404).json({ success: false, msg: "Friend not found" });
+    }
+    
+    const cardCountCollection = await collections.cardCount();
+    
+    if (type && ["breakfast", "dinner", "dessert"].includes(type)) {
+      // Use aggregation to get populated card details for specific type
+      const pipeline = [
+        // Match the friend's card count document
+        { $match: { _id: friend.cards_unlocked } },
+        
+        // Only keep the relevant card type array
+        { $project: { [type]: 1, _id: 0 } },
+        
+        // Unwind to work with individual cards
+        { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
+
+        // Lookup the card details
+        { $lookup: {
+            from: "cards",
+            localField: `${type}.uCard_Id`,
+            foreignField: "_id",
+            as: "cardDetails"
+        }},
+        
+        // Unwind the cardDetails array
+        { $unwind: "$cardDetails" },
+        
+        // Combine count with card details
+        { $project: {
+            _id: "$cardDetails._id",
+            name: "$cardDetails.name",
+            image: "$cardDetails.image",
+            stars: "$cardDetails.stars",
+            description: "$cardDetails.description",
+            type: "$cardDetails.type",
+            grid_id: "$cardDetails.grid_id",
+            count: `$${type}.count`
+        }},
+        
+        // Group all cards back together
+        { $group: {
+            _id: null,
+            cards: { $push: "$$ROOT" }
+        }},
+      ];
+    
+      // Run aggregation
+      const result = await cardCountCollection.aggregate(pipeline).toArray();
+      
+      // If no results, return empty array
+      if (result.length === 0) {
+        return res.status(200).json({ success: true, data: [] });
+      }
+      
+      return res.status(200).json({ success: true, data: result[0].cards });
+    } else {
+        // Get all card types for the friend
+        const cardCount = await cardCountCollection.findOne({ _id: friend.cards_unlocked });
+        
+        if (!cardCount) {
+          return res.status(200).json({ success: true, data: [] });
+        }
+        
+        // Process each card type separately and then combine results
+        const allCardTypes = ["breakfast", "dinner", "dessert"];
+        const allCards = [];
+        
+        for (const cardType of allCardTypes) {
+          if (!cardCount[cardType] || !Array.isArray(cardCount[cardType]) || cardCount[cardType].length === 0) {
+            continue;
+          }
+          
+          // Get all the card IDs for this type
+          const cardIds = cardCount[cardType].map(item => item.uCard_Id);
+          
+          // Fetch all the card details in one query
+          const cardCollection = await collections.cards();
+          const cardDetails = await cardCollection.find({ _id: { $in: cardIds } }).toArray();
+
+          // Combine card details with count
+          const cardsWithCount = cardCount[cardType].map(item => {
+            const card = cardDetails.find(c => c._id.toString() === item.uCard_Id.toString());
+            if (card) {
+              return {
+                ...card,
+                count: item.count
+              };
+            }
+            return null;
+          }).filter(card => card !== null);
+          
+          // Add to the all cards array
+          allCards.push(...cardsWithCount);
+        }
+        
+        return res.status(200).json({
+          success: true,
+          data: allCards
+        });
+      }
+    
+  } catch (error) {
+    console.error("GetFriendCards error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
 export const AddCardToUserCollection = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
@@ -253,6 +372,11 @@ export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
     if (parseInt(user.acorns) < 25) {
       return res.status(400).json({ success: false, msg: "You don't have enough acorns!" });
     }
+
+    await userCollection.updateOne(
+      { _id: userID },
+      { $inc: { acorns: -25 } }
+    );
     
     const cardListCollection = await collections.cardList();
     
@@ -304,10 +428,14 @@ export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
         );
       }
     }
-    
+
+    const updatedUser: any = await userCollection.findOne({ _id: userID });
+
+    const { password, ...userData } = updatedUser;
     return res.status(200).json({ 
       success: true, 
-      data: result
+      cards: result,
+      data: userData
     });
     
   } catch (error) {

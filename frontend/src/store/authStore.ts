@@ -6,12 +6,11 @@ const useAuthStore = create((set: any, get: any) => ({
     user: null,
     isAuthenticated: false,
     isLoading: false,
-    msg: null,
 
     setUser: (user) => set({ user }),
     
     login: async (username, password) => {
-      set({ isLoading: true, msg: null });
+      set({ isLoading: true });
       try {
         const response = await authApi.login({ username, password });
         if (response.success && response.data) {
@@ -20,41 +19,24 @@ const useAuthStore = create((set: any, get: any) => ({
             isAuthenticated: true,
             isLoading: false 
           });
-        } else {
-          set({ 
-            msg: response.msg || 'Login failed', 
-            isLoading: false 
-          });
         }
+        return response;
       } catch (error) {
-        set({ 
-          msg: error.message || 'Login failed', 
-          isLoading: false 
-        });
+        console.log(error);
+      } finally {
+        set({ isLoading: false });
       }
     },
     
     signup: async (email, username, password) => {
-      set({ isLoading: true, msg: null });
+      set({ isLoading: true });
       try {
         const response = await authApi.signup({ email, username, password });
-        if (response.success && response.data) {
-          set({ 
-            msg: response.msg || 'Signup successful',
-            isLoading: false 
-          });
-          return response.success;
-        } else {
-          set({ 
-            msg: response.msg || 'Signup failed', 
-            isLoading: false 
-          });
-        }
+        return response;
       } catch (error) {
-        set({ 
-          msg: error.message || 'Signup failed', 
-          isLoading: false 
-        });
+        console.log(error);
+      } finally {
+        set({ isLoading: false });
       }
     },
     
@@ -64,17 +46,98 @@ const useAuthStore = create((set: any, get: any) => ({
         const response = await authApi.logout();
         set({ 
           user: null, 
-          msg: response.msg || 'Successfully logged out', 
           isAuthenticated: false, 
-          isLoading: false 
         });
         return response;
       } catch (error) {
         set({ 
           user: null, 
           isAuthenticated: false, 
-          isLoading: false 
         });
+      } finally {
+        set({ isLoading: false });
+      }
+    },
+
+    changeUsername: async (newUsername) => {
+      set({ isLoading: true });
+      try {
+        const response = await authApi.newUsername({ newUsername });
+        if (response.success && response.data) {
+          set({ 
+            user: response.data,
+            isAuthenticated: true,
+          });
+        }
+        return { success: response.success, msg: response.msg };
+      } catch (error) {
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+        });
+      } finally {
+        set({ isLoading: false });
+      }
+    },
+
+    changeEmail: async (newEmail) => {
+      set({ isLoading: true });
+      try {
+        const response = await authApi.newEmail({ newEmail });
+        if (response.success && response.data) {
+          set({ 
+            user: response.data,
+            isAuthenticated: true,
+          });
+        }
+        return { success: response.success, msg: response.msg };
+      } catch (error) {
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+        });
+      } finally {
+        set({ isLoading: false });
+      }
+    },
+
+    changePassword: async (oldPassword, newPassword) => {
+      set({ isLoading: true });
+      try {
+        const response = await authApi.newPassword({ oldPassword, newPassword });
+        if (response.success && response.data) {
+          set({ 
+            user: response.data,
+            isAuthenticated: true,
+          });
+        }
+        return { success: response.success, msg: response.msg };
+      } catch (error) {
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+        });
+      } finally {
+        set({ isLoading: false });
+      }
+    },
+
+    deleteAcc: async () => {
+      set({ isLoading: true });
+      try {
+        const response = await authApi.deleteAccount();
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+        });
+        return response;
+      } catch (error) {
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+        });
+      } finally {
+        set({ isLoading: false });
       }
     },
     
@@ -88,21 +151,20 @@ const useAuthStore = create((set: any, get: any) => ({
           set({ 
             user: response.data,
             isAuthenticated: true,
-            isLoading: false 
           });
         } else {
           set({ 
             user: null,
             isAuthenticated: false,
-            isLoading: false 
           });
         }
       } catch (error) {
         set({ 
-          user: null,
-          isAuthenticated: false,
-          isLoading: false 
+          user: null, 
+          isAuthenticated: false, 
         });
+      } finally {
+        set({ isLoading: false });
       }
     },
   })

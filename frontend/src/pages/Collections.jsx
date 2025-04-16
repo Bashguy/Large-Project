@@ -2,16 +2,34 @@ import { useEffect, useState } from "react"
 import Card from "../components/Card"
 import { typeColors } from "../constant/home"
 import { useUserCards } from "../hooks/useQueries"
+import { cardApi } from "../services/api"
 
 const Collections = () => {
   const [activeType, setActiveType] = useState("");
   const { data: userCards, isLoading } = useUserCards(activeType);
   const [search, setSearch] = useState("");
-  const types = [["breakfast", 12], ["dinner", 12], ["dessert", 12]]
+  const [ countCards, setCountCards ] = useState({
+    breakfast_count: 0,
+    dinner_count: 0,
+    dessert_count: 0,
+    total_count: 0
+  });
+  
+  const types = ["breakfast", "dinner", "dessert"];
+
+  const getTypeCount = async () => {
+    const response = await cardApi.getCardTotal();
+    setCountCards({
+      breakfast_count: parseInt(response.breakfast_count),
+      dinner_count: parseInt(response.dinner_count),
+      dessert_count: parseInt(response.dessert_count),
+      total_count: parseInt(response.breakfast_count) + parseInt(response.dinner_count) + parseInt(response.dessert_count)
+    })
+  };
 
   useEffect(() => {
+    getTypeCount();
     document.title = "Collections";
-    console.log(userCards);
   }, [])
 
   if (isLoading) {
@@ -39,20 +57,21 @@ const Collections = () => {
     if (search.length > 0) {
       // If no type is selected but search is active, search through all types
       if (activeType === "") {
-        return types.flatMap(type => organizedCards[type[0]]
+        return types.flatMap(type => organizedCards[type]
           .filter(card => card.name.toLowerCase().includes(search.toLowerCase()))
           .map(card => (
             <Card
               key={`${type}-${card._id}`}
               title={card.name}
-              type={type[0]}
+              type={type}
               stars={card.stars}
-              image={""}
+              image={card.image}
               description={card.description}
-              power={Math.floor(Math.random() * 20) + 10}
+              power={card.power}
               count={card.count}
               shrink={1}
               locked={card.count === 0}
+              tilt={true}
             />
           ))
         );
@@ -66,12 +85,13 @@ const Collections = () => {
               title={card.name}
               type={activeType}
               stars={card.stars}
-              image={""}
+              image={card.image}
               description={card.description}
-              power={Math.floor(Math.random() * 20) + 10}
+              power={card.power}
               count={card.count}
               shrink={1}
               locked={card.count === 0}
+              tilt={true}
             />
           ));
       }
@@ -80,22 +100,23 @@ const Collections = () => {
     // If no search and no type filter (All is selected)
     if (activeType === "") {
       return types.flatMap((type) => {
-        return [...Array(12)].map((_, i) => {
+        return [...Array(countCards.total_count)].map((_, i) => {
           // Find a card with ID matching the position (i+1)
-          const card = organizedCards[type[0]].find(card => card.grid_id === i + 1);
+          const card = organizedCards[type].find(card => card.grid_id === i + 1);
           
           return card ? (
             <Card
               key={`${type}-${card._id}`}
               title={card.name}
-              type={type[0]}
+              type={type}
               stars={card.stars}
-              image={""}
+              image={card.image}
               description={card.description}
-              power={Math.floor(Math.random() * 20) + 10}
+              power={card.power}
               count={card.count}
               shrink={1}
               locked={card.count === 0}
+              tilt={true}
             />
           ) : (
             <div key={`empty-${type}-${i}`} className="flex items-center justify-center">
@@ -107,7 +128,7 @@ const Collections = () => {
     }
     
     // If a specific type is selected
-    return [...Array(12)].map((_, i) => {
+    return [...Array(countCards[`${activeType}_count`])].map((_, i) => {
       // Find a card with ID matching the position (i+1)
       const card = organizedCards[activeType].find(card => card.grid_id === i + 1);
       
@@ -117,12 +138,13 @@ const Collections = () => {
           title={card.name}
           type={activeType}
           stars={card.stars}
-          image={""}
+          image={card.image}
           description={card.description}
-          power={Math.floor(Math.random() * 20) + 10}
+          power={card.power}
           count={card.count}
           shrink={1}
           locked={card.count === 0}
+          tilt={true}
         />
       ) : (
         <div key={`empty-${activeType}-${i}`} className="flex items-center justify-center">
@@ -136,9 +158,8 @@ const Collections = () => {
   const totalCount = activeType === "" 
     ? Object.values(organizedCards).flatMap(cards => cards).length
     : organizedCards[activeType].length;
-  
-  // Calculate max possible cards
-  const maxCards = activeType === "" ? 36 : 12;
+
+  const maxCards = activeType === "" ? countCards.total_count : countCards[`${activeType}_count`]
 
   return (
     <div className="h-screen select-none font-mono overflow-hidden">

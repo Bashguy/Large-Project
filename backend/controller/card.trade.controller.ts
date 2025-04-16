@@ -140,7 +140,7 @@ export const SendTradeRequest = async (req: any, res: any): Promise<void> => {
         } 
       }
     );
-    
+
     return res.status(200).json({ 
       success: true, 
       msg: "Trade request sent successfully",
@@ -177,11 +177,19 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       
       // Unwind to work with individual trades
       { $unwind: { path: "$sent", preserveNullAndEmptyArrays: true } },
+      { $match: { "sent": { $exists: true, $ne: null } } },
+      
+      // Add fields with ObjectId conversions
+      { $addFields: {
+          "friendObjectId": { $toObjectId: "$sent.friend_Id" },
+          "cardSentId": { $toObjectId: "$sent.card_sent" },
+          "cardWantId": { $toObjectId: "$sent.card_want" }
+      }},
       
       // Lookup friend info
       { $lookup: {
           from: "users",
-          localField: "$sent.friend_Id",
+          localField: "friendObjectId",
           foreignField: "_id",
           as: "friendInfo"
       }},
@@ -189,7 +197,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       // Lookup sent card details
       { $lookup: {
           from: "cards",
-          localField: "$sent.card_sent",
+          localField: "cardSentId",
           foreignField: "_id",
           as: "sentCardDetails"
       }},
@@ -197,7 +205,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       // Lookup want card details
       { $lookup: {
           from: "cards",
-          localField: "$sent.card_want",
+          localField: "cardWantId",
           foreignField: "_id",
           as: "wantCardDetails"
       }},
@@ -227,7 +235,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             id: "$wantCardDetails._id",
             name: "$wantCardDetails.name",
             image: "$wantCardDetails.image",
-            description: "$sentCardDetails.description",
+            description: "$wantCardDetails.description",
             type: "$wantCardDetails.type",
             stars: "$wantCardDetails.stars"
           },
@@ -240,21 +248,27 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
       { $match: { _id: user.trade } },
       { $project: { received: 1, _id: 0 } },
       { $unwind: { path: "$received", preserveNullAndEmptyArrays: true } },
+      { $match: { "received": { $exists: true, $ne: null } } },
+      { $addFields: {
+          "friendObjectId": { $toObjectId: "$received.friend_Id" },
+          "cardSentId": { $toObjectId: "$received.card_sent" },
+          "cardWantId": { $toObjectId: "$received.card_want" }
+      }},
       { $lookup: {
           from: "users",
-          localField: "$received.friend_Id",
+          localField: "friendObjectId",
           foreignField: "_id",
           as: "friendInfo"
       }},
       { $lookup: {
           from: "cards",
-          localField: "$received.card_sent",
+          localField: "cardSentId",
           foreignField: "_id",
           as: "sentCardDetails"
       }},
       { $lookup: {
           from: "cards",
-          localField: "$received.card_want",
+          localField: "cardWantId",
           foreignField: "_id",
           as: "wantCardDetails"
       }},
@@ -268,7 +282,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             id: "$friendInfo._id",
             username: "$friendInfo.username"
           },
-          cardOffered: {
+          cardWant: {
             id: "$sentCardDetails._id",
             name: "$sentCardDetails.name",
             image: "$sentCardDetails.image",
@@ -276,7 +290,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             type: "$sentCardDetails.type",
             stars: "$sentCardDetails.stars"
           },
-          cardWanted: {
+          cardSent: {
             id: "$wantCardDetails._id",
             name: "$wantCardDetails.name",
             image: "$wantCardDetails.image",
