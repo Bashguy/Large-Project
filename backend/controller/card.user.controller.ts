@@ -47,6 +47,7 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
             image: "$cardDetails.image",
             stars: "$cardDetails.stars",
             description: "$cardDetails.description",
+            power: "$cardDetails.power",
             type: "$cardDetails.type",
             grid_id: "$cardDetails.grid_id",
             count: `$${type}.count`
@@ -165,6 +166,7 @@ export const GetFriendCards = async (req: any, res: any): Promise<void> => {
             image: "$cardDetails.image",
             stars: "$cardDetails.stars",
             description: "$cardDetails.description",
+            power: "$cardDetails.power",
             type: "$cardDetails.type",
             grid_id: "$cardDetails.grid_id",
             count: `$${type}.count`

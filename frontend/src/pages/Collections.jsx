@@ -33,7 +33,7 @@ const Collections = () => {
   }, [])
 
   if (isLoading) {
-    return <div>Loading cards...</div>;
+    return <div className="flex h-screen items-center justify-center bg-black opacity-50 z-100 text-8xl text-white">Loading...</div>;
   }
 
   // Organize fetched cards by type
@@ -42,6 +42,7 @@ const Collections = () => {
     dinner: [],
     dessert: []
   };
+  console.log(organizedCards)
 
   // If we have cards, organize them by type
   if (userCards && Array.isArray(userCards)) {
@@ -212,7 +213,7 @@ const Collections = () => {
               <div className="absolute h-full w-full flex justify-around z-10">
                 <button 
                   className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full transition-all cursor-pointer
-                    ${activeType === "" ? "text-black font-bold" : "text-zinc-800 hover:text-black hover:scale-120"}`}
+                    ${activeType === "" ? "text-white font-bold" : "text-amber-100 hover:text-white hover:scale-120"}`}
                   onClick={() => {
                     setActiveType("")
                     setSearch("")
@@ -222,7 +223,7 @@ const Collections = () => {
                 </button>
                 <button 
                   className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full transition-all cursor-pointer
-                    ${activeType === "breakfast" ? "text-white font-bold" : "text-amber-100 hover:text-white hover:scale-120"}`}
+                    ${activeType === "breakfast" ? "text-black font-bold" : "text-zinc-800 hover:text-black hover:scale-120"}`}
                   onClick={() => {
                     setActiveType("breakfast")
                     setSearch("")
@@ -233,7 +234,7 @@ const Collections = () => {
                 
                 <button 
                   className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full transition-all cursor-pointer
-                    ${activeType === "dinner" ? "text-white font-bold" : "text-amber-100 hover:text-white hover:scale-120"}`}
+                    ${activeType === "dinner" ? "text-black font-bold" : "text-zinc-800 hover:text-black hover:scale-120"}`}
                   onClick={() => {
                     setActiveType("dinner")
                     setSearch("")
@@ -244,7 +245,7 @@ const Collections = () => {
                 
                 <button 
                   className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full transition-all cursor-pointer
-                    ${activeType === "dessert" ? "text-white font-bold" : "text-amber-100 hover:text-white hover:scale-120"}`}
+                    ${activeType === "dessert" ? "text-black font-bold" : "text-zinc-800 hover:text-black  hover:scale-120"}`}
                   onClick={() => {
                     setActiveType("dessert")
                     setSearch("")

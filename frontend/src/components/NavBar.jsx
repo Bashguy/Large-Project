@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import picnicImage from '../assets/picnick.svg';
+import acornImage from '../assets/donguri.svg';
 import { Link } from 'react-router-dom';
 import useAuthStore from "../store/authStore"
 import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
-  const { logout, user, isLoading } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
@@ -46,7 +47,7 @@ const NavBar = () => {
           </div>
 
           {/* Homepage */}
-          <Link to="/" className='mr-[5%]'>
+          <Link to="/">
             <div className="hover:scale-110 transition duration-250 cursor-pointer w-fit text-[3vw] xl:text-[2vw] flex items-center gap-4 pointer-events-auto">
               Picnic
               <img src={picnicImage} alt="Home" className='size-[4vw] xl:size-[3vw] mb-2' />
@@ -55,7 +56,10 @@ const NavBar = () => {
           </Link>
 
           <div className={`flex items-center justify-center space-x-5 ${user ? "" : "hidden"}`}>
-            <div className='font-bold text-2xl text-amber-900'>{user?.acorns}</div>
+            <div className='flex flex-row items-center justify-center mr-10'>
+              <img src={acornImage} alt="Acorn" className='size-[4vw] xl:size-[3vw]' />
+              <div className='font-bold text-2xl text-amber-900'>{user?.acorns}</div>
+            </div>
 
             {/* Settings */}
             <Link to="/settings">

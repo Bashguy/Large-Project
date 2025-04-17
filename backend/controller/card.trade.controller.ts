@@ -15,7 +15,7 @@ async function removeCardFromUser(cardCountId: any, cardId: any, cardType: any) 
     console.log(`Card ${cardId} not found in user's ${cardType} collection`);
   }
   
-  if (typeArray[cardIndex].count > 1) {
+  if (typeArray[cardIndex].count > 0) {
     // Decrement count
     const updatePath = `${cardType}.${cardIndex}.count`;
     
@@ -228,6 +228,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             name: "$sentCardDetails.name",
             image: "$sentCardDetails.image",
             description: "$sentCardDetails.description",
+            power: "$sentCardDetails.power",
             type: "$sentCardDetails.type",
             stars: "$sentCardDetails.stars"
           },
@@ -236,6 +237,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             name: "$wantCardDetails.name",
             image: "$wantCardDetails.image",
             description: "$wantCardDetails.description",
+            power: "$wantCardDetails.power",
             type: "$wantCardDetails.type",
             stars: "$wantCardDetails.stars"
           },
@@ -287,6 +289,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             name: "$sentCardDetails.name",
             image: "$sentCardDetails.image",
             description: "$sentCardDetails.description",
+            power: "$sentCardDetails.power",
             type: "$sentCardDetails.type",
             stars: "$sentCardDetails.stars"
           },
@@ -295,6 +298,7 @@ export const GetUserTrades = async (req: any, res: any): Promise<void> => {
             name: "$wantCardDetails.name",
             image: "$wantCardDetails.image",
             description: "$wantCardDetails.description",
+            power: "$wantCardDetails.power",
             type: "$wantCardDetails.type",
             stars: "$wantCardDetails.stars"
           },
@@ -384,6 +388,16 @@ export const AcceptTrade = async (req: any, res: any): Promise<void> => {
     );
 
     if (!userHasCard || !friendHasCard) {
+      await tradeListCollection.updateOne(
+        { _id: user.trade },
+        { $pull: { received: { _id: ObjectId.createFromHexString(tradeId) } as any } }
+      );
+
+      await tradeListCollection.updateOne(
+        { _id: friend.trade },
+        { $pull: { sent: { _id: ObjectId.createFromHexString(tradeId) } as any } }
+      );
+
       return res.status(400).json({ success: false, msg: "One of required cards are no longer available" });
     }
     
@@ -460,13 +474,13 @@ export const DeclineTrade = async (req: any, res: any): Promise<void> => {
     // Remove trade from both users' trade lists using the shared ID
     await tradeListCollection.updateOne(
       { _id: user.trade },
-      { $pull: { [tradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } } // change to sent
+      { $pull: { [tradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } }
     );
     
     const friendTradeType = tradeType === 'sent' ? 'received' : 'sent';
     await tradeListCollection.updateOne(
       { _id: friend.trade },
-      { $pull: { [friendTradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } } // change to received
+      { $pull: { [friendTradeType]: { _id: ObjectId.createFromHexString(tradeId) } as any } }
     );
     
     return res.status(200).json({ 

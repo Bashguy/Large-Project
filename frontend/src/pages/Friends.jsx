@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import friendImage from "../assets/friends.svg";
+import tradeImage from '../assets/swap.svg';
 import Card from "../components/Card";
 import {
   useFriends,
@@ -31,7 +32,7 @@ const ConfirmationModal = ({ isConfirmOpen, onClose, onConfirm, actionType }) =>
 
       {/* Modal content */}
       <div
-        className={`relative bg-white bg-opacity-95 rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-1/3 z-30 ${isConfirmOpen ? 'translate-y-0' : 'translate-y-10'
+        className={`relative bg-[#F1BF7E] bg-opacity-95 rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-1/3 z-30 ${isConfirmOpen ? 'translate-y-0' : 'translate-y-10'
           }`}
         onClick={handleModalClick}
       >
@@ -117,7 +118,7 @@ const Modal = ({ isOpen, onClose, status = 'sent', tradeData }) => {
 
         {/* Modal content */}
         <div
-          className={`relative bg-white rounded-xl shadow-lg transition-all duration-300 w-1/2 lg:w-2/5 max-h-3/4 z-20 ${isOpen ? 'translate-y-0' : 'translate-y-10'
+          className={`relative bg-[#F1BF7E] rounded-xl shadow-lg transition-all duration-300 w-1/2 lg:w-2/5 max-h-3/4 z-20 ${isOpen ? 'translate-y-0' : 'translate-y-10'
             }`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -135,9 +136,9 @@ const Modal = ({ isOpen, onClose, status = 'sent', tradeData }) => {
           </div>
 
           {/* Card images section */}
-          <div className={`pt-4 flex ${status === 'sent' ? "flex-row" : "flex-row-reverse"} justify-center items-center mb-8`}>
+          <div className={`pt-4 flex flex-row justify-center items-center mb-8`}>
             <div>
-              <div className="mb-2 text-center font-medium">{status === 'sent' ? "You" : "Friend"}</div>
+              <div className="mb-2 text-center font-medium">Your Card</div>
               {tradeData?.cardSent ? (
                 <Card
                   title={tradeData.cardSent.name}
@@ -156,11 +157,11 @@ const Modal = ({ isOpen, onClose, status = 'sent', tradeData }) => {
             </div>
 
             <div className="flex items-center justify-center mx-4">
-              ↔️
+              <img src={tradeImage} alt="↔" className="rotate-90 size-12"></img>
             </div>
 
             <div>
-              <div className="mb-2 text-center font-medium">{status === 'sent' ? "Friend" : "You"}</div>
+              <div className="mb-2 text-center font-medium">Friend's Card</div>
               {tradeData?.cardWant ? (
                 <Card
                   title={tradeData.cardWant.name}
@@ -279,7 +280,7 @@ const TradeCreationModal = ({ isOpen, onClose, friendData }) => {
 
       {/* Modal content */}
       <div
-        className={`relative bg-white rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-2/5 max-h-3/4 z-20 overflow-y-auto ${isOpen ? 'translate-y-0' : 'translate-y-10'
+        className={`relative bg-[#F1BF7E] rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-2/5 max-h-3/4 z-20 overflow-y-auto ${isOpen ? 'translate-y-0' : 'translate-y-10'
           }`}
         onClick={handleModalClick}
       >
@@ -427,7 +428,7 @@ const UnfriendModal = ({ isOpen, onClose, friendData, onConfirm }) => {
 
       {/* Modal content */}
       <div
-        className={`relative bg-white bg-opacity-95 rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-1/3 z-30 ${isOpen ? 'translate-y-0' : 'translate-y-10'
+        className={`relative bg-[#F1BF7E] bg-opacity-95 rounded-xl shadow-lg transition-all duration-300 w-11/12 md:w-1/3 z-30 ${isOpen ? 'translate-y-0' : 'translate-y-10'
           }`}
         onClick={handleModalClick}
       >
@@ -593,7 +594,7 @@ const Friends = () => {
                     trades.sent.map((trade) => (
                       <div key={trade.id} className="relative w-4/5 h-20 flex items-center justify-center border-1 m-4 rounded-sm bg-white">
                         <div className="flex flex-row absolute left-5 cursor-pointer gap-4">
-                          <img src={friendImage} alt="img" className="size-12 " />
+                          <img src={friendImage} alt="img" className="size-12 rounded-full p-1 border-2" />
                           <div className="flex items-center text-2xl">{trade.friend.username}</div>
                         </div>
                         <div className="flex flex-row absolute right-4">
@@ -626,7 +627,7 @@ const Friends = () => {
                     trades.received.map((trade) => (
                       <div key={trade.id} className="relative w-4/5 h-20 flex items-center justify-center border-1 m-4 rounded-sm bg-white">
                         <div className="flex flex-row absolute left-5 cursor-pointer gap-4">
-                          <img src={friendImage} alt="img" className="size-12 " />
+                          <img src={friendImage} alt="img" className="size-12 rounded-full p-1 border-2" />
                           <div className="flex items-center text-2xl">{trade.friend.username}</div>
                         </div>
                         <div className="flex flex-row absolute right-4">
@@ -667,7 +668,7 @@ const Friends = () => {
                     friends.map((friend) => (
                       <div key={friend.id} className="relative w-4/5 h-20 flex items-center justify-center border-1 m-4 rounded-full bg-white">
                         <div className="flex flex-row absolute left-5 cursor-pointer gap-4">
-                          <img src={friendImage} alt="img" className="size-12 " />
+                          <img src={friendImage} alt="img" className="size-12 rounded-full p-1 border-2" />
                           <div className="flex items-center text-2xl">{friend.username}</div>
                         </div>
                         <div className="flex flex-row absolute right-4">

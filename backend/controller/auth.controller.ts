@@ -5,22 +5,28 @@ import { collections } from "../lib/mongo.lib";
 
 export const SignUp = async (req: any, res: any): Promise<void> => {
   const newUser = req.body;
+  const newUsername = newUser.username.toLowerCase();
+  const newEmail = newUser.email.toLowerCase();
+  const newPassword = newUser.password.toLowerCase();
 
   try {
-    if (!newUser.username || !newUser.email || !newUser.password) {
+    if (newUsername || newEmail || newPassword) {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
-    const hasLength = newUser.password.length >= 8
-    const hasNumber = (/\d/).test(newUser.password);
-    const hasSymbol = (/[^\w\s]/).test(newUser.password);
-    const hasSpaces = (/\s/).test(newUser.password);
-    const userHasSpaces = (/\s/).test(newUser.username);
+    const hasLength = newPassword.length >= 8
+    const hasNumber = (/\d/).test(newPassword);
+    const hasCapital = (/[A-Z]/).test(newPassword)
+    const hasSymbol = (/[^\w\s]/).test(newPassword);
+    const hasSpaces = (/\s/).test(newPassword);
+    const userHasSpaces = (/\s/).test(newUsername);
 
     if (!hasLength) {
       return res.status(400).json({ success: false, msg: "Password must be at least 8 characters" });
     } else if (!hasNumber) {
       return res.status(400).json({ success: false, msg: "Password must have digit(s)" });
+    } else if (!hasCapital) {
+      return res.status(400).json({ success: false, msg: "Password must have uppercase character(s)" });
     } else if (!hasSymbol) {
       return res.status(400).json({ success: false, msg: "Password must have special character(s)" });
     } else if (hasSpaces) {
@@ -30,7 +36,7 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const validEmail = emailPattern.test(newUser.email)
+    const validEmail = emailPattern.test(newEmail)
 
     if (!validEmail) {
       return res.status(400).json({ success: false, msg: "Invalid Email format" });
@@ -41,8 +47,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
     // Check if user already exists
     const userExists = await userCollection.findOne({ 
       $or: [
-        { email: newUser.email },
-        { username: newUser.username }
+        { email: newEmail },
+        { username: newUsername }
       ]
     });
     
@@ -55,7 +61,7 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(newUser.password, salt);
+    const hashPassword = await bcrypt.hash(newPassword, salt);
 
     // Create empty card count document
     const getCardCollection = await collections.cardCount();
@@ -76,8 +82,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
 
     // Prepare user document
     const userDocument = {
-      username: newUser.username,
-      email: newUser.email,
+      username: newUsername,
+      email: newEmail,
       password: hashPassword,
       friend_list: [],
       cards_unlocked: createCardCollection.insertedId,
@@ -112,16 +118,17 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
 
 export const LogIn = async (req: any, res: any): Promise<void> => {
   const currUser = req.body;
+  const currUsername = currUser.username.toLowerCase();
   
   try {
-    if (!currUser.username || !currUser.password) {
+    if (!currUsername || !currUser.password) {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
     const userCollection = await collections.users();
     
     // Find user
-    const userExists = await userCollection.findOne({ username: currUser.username });
+    const userExists = await userCollection.findOne({ username: currUsername });
 
     if (userExists) {
       const isPassValid = await bcrypt.compare(currUser.password, userExists.password);
@@ -159,12 +166,13 @@ export const ChangeUsername = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const { newUsername } = req.body;
+    const newUserameLower = newUsername.toLowerCase();
 
-    if (!newUsername) {
+    if (!newUserameLower) {
       return res.status(400).json({ success: false, msg: "New username is required" });
     }
     // Ensure new username has no spaces
-    if ((/\s/).test(newUsername)) {
+    if ((/\s/).test(newUserameLower)) {
       return res.status(400).json({ success: false, msg: "Username must not contain spaces" });
     }
 
@@ -172,7 +180,7 @@ export const ChangeUsername = async (req: any, res: any): Promise<void> => {
 
     // Check if another user already has this username
     const existingUser = await userCollection.findOne({
-      username: newUsername,
+      username: newUserameLower,
       _id: { $ne: userID }
     });
 
@@ -182,7 +190,7 @@ export const ChangeUsername = async (req: any, res: any): Promise<void> => {
 
     const updateUserResult = await userCollection.findOneAndUpdate(
       { _id: userID },
-      { $set: { username: newUsername } },
+      { $set: { username: newUserameLower } },
       { returnDocument: 'after' }
     );
 
@@ -203,13 +211,14 @@ export const ChangeEmail = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const { newEmail } = req.body;
+    const newEmailLower = newEmail.toLowerCase();
 
-    if (!newEmail) {
+    if (!newEmailLower) {
       return res.status(400).json({ success: false, msg: "New username is required" });
     }
     // Ensure new email has no spaces
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const validEmail = emailPattern.test(newEmail)
+    const validEmail = emailPattern.test(newEmailLower)
 
     if (!validEmail) {
       return res.status(400).json({ success: false, msg: "Invalid Email format" });
@@ -219,7 +228,7 @@ export const ChangeEmail = async (req: any, res: any): Promise<void> => {
 
     // Check if another user already has this username
     const existingUser = await userCollection.findOne({
-      username: newEmail,
+      username: newEmailLower,
       _id: { $ne: userID }
     });
 
@@ -229,7 +238,7 @@ export const ChangeEmail = async (req: any, res: any): Promise<void> => {
 
     const updateUserResult = await userCollection.findOneAndUpdate(
       { _id: userID },
-      { $set: { email: newEmail } },
+      { $set: { email: newEmailLower } },
       { returnDocument: 'after' }
     );
 
@@ -358,17 +367,18 @@ export const AddFriend = async (req: any, res: any): Promise<void> => {
     const userID = req.info._id;
     const userNa = req.info.username;
     const { friendUsername } = req.body;
+    const friendNa = friendUsername.toLowerCase();
     
-    if (!friendUsername) {
+    if (!friendNa) {
       return res.status(400).json({ success: false, msg: "Friend username is required" });
     }
 
-    if (userNa === friendUsername ) return res.status(400).json({ success: false, msg: "You cannot friend yourself" });
+    if (userNa === friendNa) return res.status(400).json({ success: false, msg: "You cannot friend yourself" });
     
     const userCollection = await collections.users();
     
     // Find the friend
-    const friend = await userCollection.findOne({ username: friendUsername });
+    const friend = await userCollection.findOne({ username: friendNa });
     if (!friend) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }

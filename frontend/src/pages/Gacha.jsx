@@ -3,6 +3,7 @@ import { typeColors } from "../constant/home"
 import backBox from "../assets/box_back.svg"
 import frontBox from "../assets/box_front.svg"
 import boxLid from "../assets/box_lid_full.svg"
+import boxImage from "../assets/present.svg"
 import Card from "../components/Card"
 import { useUnlock4Cards } from "../hooks/useQueries"
 
@@ -77,21 +78,21 @@ const Gacha = () => {
               className={`relative w-64 h-96 border-1 rounded-2xl flex items-center justify-center group ${typeColors.breakfast} cursor-pointer`} 
               onClick={() => unlockBoxType("breakfast")}
             >
-              <img src="https://gallery.yopriceville.com/downloadfullsize/send/7293" alt="breakfast-box" className="transition-all group-hover:scale-125 max-h-full max-w-full" />
+              <img src={boxImage} alt="breakfast-box" className="transition-all group-hover:scale-130 max-h-full max-w-full hue-rotate-90" />
               <div className="absolute -bottom-12 text-4xl">Breakfast</div>
             </div>
             <div 
               className={`relative w-64 h-96 border-1 rounded-2xl flex items-center justify-center group ${typeColors.dinner} cursor-pointer`} 
               onClick={() => unlockBoxType("dinner")}
             >
-              <img src="https://gallery.yopriceville.com/downloadfullsize/send/7293" alt="dinner-box" className="transition-all group-hover:scale-125 max-h-full max-w-full" />
+              <img src={boxImage} alt="dinner-box" className="transition-all group-hover:scale-130 max-h-full max-w-full hue-rotate-210" />
               <div className="absolute -bottom-12 text-4xl">Dinner</div>
             </div>
             <div 
               className={`relative w-64 h-96 border-1 rounded-2xl flex items-center justify-center group ${typeColors.dessert} cursor-pointer`} 
               onClick={() => unlockBoxType("dessert")}
             >
-              <img src="https://gallery.yopriceville.com/downloadfullsize/send/7293" alt="dessert-box" className="transition-all group-hover:scale-125 max-h-full max-w-full" />
+              <img src={boxImage} alt="dessert-box" className="transition-all group-hover:scale-130 max-h-full max-w-full hue-rotate-30" />
               <div className="absolute -bottom-12 text-4xl">Dessert</div>
             </div>
           </div>
