@@ -9,7 +9,7 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
   const newEmail = newUser.email.toLowerCase();
 
   try {
-    if (!newUsername || !newEmail || !newUser.password) {
+    if (newUsername || newEmail || newUser.password) {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
