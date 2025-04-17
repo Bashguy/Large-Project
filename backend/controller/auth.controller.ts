@@ -514,7 +514,7 @@ export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
         lastUpdatedDate.getUTCMonth() === currentDate.getUTCMonth() &&
         lastUpdatedDate.getUTCDate() === currentDate.getUTCDate()
       ) {
-        return res.status(400).json({ success: false, msg: "Wait until the nex day" });
+        return res.status(400).json({ success: false, msg: "Wait until the next day" });
       }
     }
 
