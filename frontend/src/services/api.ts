@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:6969/api';
+const API_URL = 'https://picnicpickup.online/api';
 
 // Helper function for fetch requests
 const fetchApi = async (endpoint, options = {}) => {
