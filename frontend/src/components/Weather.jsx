@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import cloudImg from "../assets/cloud.png"
 
-const Weather = () => {
+const Weather = ({ day, weather }) => {
   const [clouds, setClouds] = useState([]);
 
   const generateCloud = () => {
@@ -38,7 +38,7 @@ const Weather = () => {
   }, []);
 
   return (
-    <div className="h-screen w-full fixed overflow-hidden pointer-events-none z-25">
+    <div className={`${weather ? "opacity-100" : "opacity-0"} transition-all h-screen w-full fixed overflow-hidden pointer-events-none z-25`}>
       {clouds.map((cloud) => (
         <div 
           key={cloud.id} 
@@ -60,8 +60,7 @@ const Weather = () => {
           />
         </div>
       ))}
-      <div className="h-full w-full bg-amber-200 z-10 opacity-10"></div>
-      <div className="h-full hidden w-full bg-blue-900 z-10 opacity-30"></div>
+      <div className={`h-full w-full transition-all z-10 ${day ? "bg-amber-200 opacity-10" : "bg-blue-900 opacity-30"}`}></div>
     </div>
   )
 }

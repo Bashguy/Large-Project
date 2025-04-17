@@ -1,6 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi, cardApi, userCardApi, tradeApi } from '../src/services/api';
-import useAuthStore from '../src/store/authStore';
+import { authApi, cardApi, userCardApi, tradeApi } from '../services/api';
+import useAuthStore from '../store/authStore';
+import toast from 'react-hot-toast';
+
+const toastStyle = {
+  style: {
+    border: '1px solid #713200',
+    padding: '16px',
+    color: '#713200',
+  },
+  iconTheme: {
+    primary: '#713200',
+    secondary: '#FFFAEE',
+  },
+}
 
 // ==================== Auth Queries ====================
 
@@ -23,6 +36,13 @@ export const useAddFriend = () => {
   return useMutation({
     mutationFn: async (username) => {
       const response = await authApi.addFriend(username);
+      
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
+
       return response;
     },
     onSuccess: () => {
@@ -37,6 +57,13 @@ export const useRemoveFriend = () => {
   return useMutation({
     mutationFn: async (friendId) => {
       const response = await authApi.removeFriend(friendId);
+
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
+
       return response;
     },
     onSuccess: () => {
@@ -73,6 +100,7 @@ export const useCardsByType = (type) => {
   });
 };
 
+/*
 export const useCreateCard = () => {
   const queryClient = useQueryClient();
   
@@ -88,6 +116,7 @@ export const useCreateCard = () => {
     }
   });
 };
+*/
 
 // ==================== User Card Collection Queries ====================
 
@@ -104,16 +133,38 @@ export const useUserCards = (type) => {
   });
 };
 
-export const useAddCardToCollection = () => {
+export const useFriendCards = (friendId, type) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
+  return useQuery({
+    queryKey: ['friendCards', friendId, type],
+    queryFn: async () => {
+      const response = await userCardApi.getFriendCards(friendId.toString(), type);
+      return response.data || [];
+    },
+    enabled: friendId && isAuthenticated
+  });
+};
+
+export const useUnlock4Cards = () => {
   const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
   
   return useMutation({
-    mutationFn: async (cardId) => {
-      const response = await userCardApi.addCardToCollection(cardId);
+    mutationFn: async (type) => {
+      const response = await userCardApi.Unlock4Cards(type);
+      
+      if (!response.success) {
+        toast.error(response.msg, toastStyle);
+      }
+
       return response;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userCards'] });
+    onSuccess: (data) => {
+      if (data.success) {
+        setUser(data.data);
+        queryClient.invalidateQueries({ queryKey: ['userCards'] });
+      }
     }
   });
 };
@@ -139,6 +190,13 @@ export const useSendTradeRequest = () => {
   return useMutation({
     mutationFn: async (data) => {
       const response = await tradeApi.sendTradeRequest(data);
+      
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
+
       return response;
     },
     onSuccess: () => {
@@ -153,6 +211,13 @@ export const useAcceptTrade = () => {
   return useMutation({
     mutationFn: async (tradeId) => {
       const response = await tradeApi.acceptTrade(tradeId);
+      
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
+
       return response;
     },
     onSuccess: () => {
@@ -166,8 +231,15 @@ export const useDeclineTrade = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (tradeId) => {
-      const response = await tradeApi.declineTrade(tradeId);
+    mutationFn: async (data) => {
+      const response = await tradeApi.declineTrade(data);
+      
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
+      
       return response;
     },
     onSuccess: () => {

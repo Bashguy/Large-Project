@@ -17,70 +17,223 @@ export const GetUserCards = async (req: any, res: any): Promise<void> => {
     
     const cardCountCollection = await collections.cardCount();
     
-    // Use aggregation to get populated card details
-    const pipeline = [
-      // Match the user's card count document
-      { $match: { _id: user.cards_unlocked } },
-      
-      // Only keep the relevant card type array
-      { $project: { [type]: 1, _id: 0 } },
-      
-      // Unwind to work with individual cards
-      { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
-      
-      // Add a new field with converted ObjectId
-      { $addFields: {
-          "cardObjectId": { $toObjectId: `$${type}.uCard_Id` }
-      }},
-      
-      // Lookup the card details
-      { $lookup: {
-          from: "cards",
-          localField: "cardObjectId",
-          foreignField: "_id",
-          as: "cardDetails"
-      }},
-      
-      // Unwind the cardDetails array (will contain only one item)
-      { $unwind: "$cardDetails" },
-      
-      // Combine count with card details
-      { $project: {
-          _id: "$cardDetails._id",
-          name: "$cardDetails.name",
-          image: "$cardDetails.image",
-          stars: "$cardDetails.stars",
-          description: "$cardDetails.description",
-          type: "$cardDetails.type",
-          grid_id: "$cardDetails.grid_id",
-          count: `$${type}.count`
-      }},
-      
-      // Group all cards back together
-      { $group: {
-          _id: null,
-          cards: { $push: "$$ROOT" }
-      }},
-      
-      // Final projection to just get the cards array
-      { $project: {
-          _id: 0,
-          cards: 1
-      }}
-    ];
+    if (type && ["breakfast", "dinner", "dessert"].includes(type)) {
+      // Use aggregation to get populated card details
+      const pipeline = [
+        // Match the user's card count document
+        { $match: { _id: user.cards_unlocked } },
+        
+        // Only keep the relevant card type array
+        { $project: { [type]: 1, _id: 0 } },
+        
+        // Unwind to work with individual cards
+        { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
+
+        // Lookup the card details
+        { $lookup: {
+            from: "cards",
+            localField: `${type}.uCard_Id`,
+            foreignField: "_id",
+            as: "cardDetails"
+        }},
+        
+        // Unwind the cardDetails array (will contain only one item)
+        { $unwind: "$cardDetails" },
+        
+        // Combine count with card details
+        { $project: {
+            _id: "$cardDetails._id",
+            name: "$cardDetails.name",
+            image: "$cardDetails.image",
+            stars: "$cardDetails.stars",
+            description: "$cardDetails.description",
+            type: "$cardDetails.type",
+            grid_id: "$cardDetails.grid_id",
+            count: `$${type}.count`
+        }},
+        
+        // Group all cards back together
+        { $group: {
+            _id: null,
+            cards: { $push: "$$ROOT" }
+        }},
+      ];
     
     // Run aggregation
-    const result = await cardCountCollection.aggregate(pipeline).toArray();
-    
-    // If no results, return empty array
-    if (result.length === 0) {
-      return res.status(200).json({ success: true, data: [] });
-    }
-    
-    return res.status(200).json({ success: true, data: result[0].cards });
+      const result = await cardCountCollection.aggregate(pipeline).toArray();
+      
+      // If no results, return empty array
+      if (result.length === 0) {
+        return res.status(200).json({ success: true, data: [] });
+      }
+      
+      return res.status(200).json({ success: true, data: result[0].cards });
+    } else {
+        const cardCount = await cardCountCollection.findOne({ _id: user.cards_unlocked });
+        
+        if (!cardCount) {
+          return res.status(200).json({ success: true, data: [] });
+        }
+        
+        // Process each card type separately and then combine results
+        const allCardTypes = ["breakfast", "dinner", "dessert"];
+        const allCards = [];
+        
+        for (const cardType of allCardTypes) {
+          if (!cardCount[cardType] || !Array.isArray(cardCount[cardType]) || cardCount[cardType].length === 0) {
+            continue;
+          }
+          
+          // Get all the card IDs for this type
+          const cardIds = cardCount[cardType].map(item => item.uCard_Id);
+          
+          // Fetch all the card details in one query
+          const cardCollection = await collections.cards();
+          const cardDetails = await cardCollection.find({ _id: { $in: cardIds } }).toArray();
+          
+          // Combine card details with count
+          const cardsWithCount = cardCount[cardType].map(item => {
+            const card = cardDetails.find(c => c._id.toString() === item.uCard_Id.toString());
+            if (card) {
+              return {
+                ...card,
+                count: item.count
+              };
+            }
+            return null;
+          }).filter(card => card !== null);
+          
+          // Add to the all cards array
+          allCards.push(...cardsWithCount);
+        }
+        
+        return res.status(200).json({
+          success: true,
+          data: allCards
+        });
+      }
     
   } catch (error) {
     console.error("GetUserCards error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const GetFriendCards = async (req: any, res: any): Promise<void> => {
+  try {
+    // Get friendId from params
+    const { friendId, type } = req.params;
+    
+    const userCollection = await collections.users();
+    
+    // Get the friend user
+    const friend = await userCollection.findOne({ _id: ObjectId.createFromHexString(friendId) });
+    
+    if (!friend) {
+      return res.status(404).json({ success: false, msg: "Friend not found" });
+    }
+    
+    const cardCountCollection = await collections.cardCount();
+    
+    if (type && ["breakfast", "dinner", "dessert"].includes(type)) {
+      // Use aggregation to get populated card details for specific type
+      const pipeline = [
+        // Match the friend's card count document
+        { $match: { _id: friend.cards_unlocked } },
+        
+        // Only keep the relevant card type array
+        { $project: { [type]: 1, _id: 0 } },
+        
+        // Unwind to work with individual cards
+        { $unwind: { path: `$${type}`, preserveNullAndEmptyArrays: true } },
+
+        // Lookup the card details
+        { $lookup: {
+            from: "cards",
+            localField: `${type}.uCard_Id`,
+            foreignField: "_id",
+            as: "cardDetails"
+        }},
+        
+        // Unwind the cardDetails array
+        { $unwind: "$cardDetails" },
+        
+        // Combine count with card details
+        { $project: {
+            _id: "$cardDetails._id",
+            name: "$cardDetails.name",
+            image: "$cardDetails.image",
+            stars: "$cardDetails.stars",
+            description: "$cardDetails.description",
+            type: "$cardDetails.type",
+            grid_id: "$cardDetails.grid_id",
+            count: `$${type}.count`
+        }},
+        
+        // Group all cards back together
+        { $group: {
+            _id: null,
+            cards: { $push: "$$ROOT" }
+        }},
+      ];
+    
+      // Run aggregation
+      const result = await cardCountCollection.aggregate(pipeline).toArray();
+      
+      // If no results, return empty array
+      if (result.length === 0) {
+        return res.status(200).json({ success: true, data: [] });
+      }
+      
+      return res.status(200).json({ success: true, data: result[0].cards });
+    } else {
+        // Get all card types for the friend
+        const cardCount = await cardCountCollection.findOne({ _id: friend.cards_unlocked });
+        
+        if (!cardCount) {
+          return res.status(200).json({ success: true, data: [] });
+        }
+        
+        // Process each card type separately and then combine results
+        const allCardTypes = ["breakfast", "dinner", "dessert"];
+        const allCards = [];
+        
+        for (const cardType of allCardTypes) {
+          if (!cardCount[cardType] || !Array.isArray(cardCount[cardType]) || cardCount[cardType].length === 0) {
+            continue;
+          }
+          
+          // Get all the card IDs for this type
+          const cardIds = cardCount[cardType].map(item => item.uCard_Id);
+          
+          // Fetch all the card details in one query
+          const cardCollection = await collections.cards();
+          const cardDetails = await cardCollection.find({ _id: { $in: cardIds } }).toArray();
+
+          // Combine card details with count
+          const cardsWithCount = cardCount[cardType].map(item => {
+            const card = cardDetails.find(c => c._id.toString() === item.uCard_Id.toString());
+            if (card) {
+              return {
+                ...card,
+                count: item.count
+              };
+            }
+            return null;
+          }).filter(card => card !== null);
+          
+          // Add to the all cards array
+          allCards.push(...cardsWithCount);
+        }
+        
+        return res.status(200).json({
+          success: true,
+          data: allCards
+        });
+      }
+    
+  } catch (error) {
+    console.error("GetFriendCards error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };
@@ -104,7 +257,7 @@ export const AddCardToUserCollection = async (req: any, res: any): Promise<void>
     
     // Get card to determine type
     const cardCollection = await collections.cards();
-    const card = await cardCollection.findOne({ _id: new ObjectId(cardId) });
+    const card = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardId) });
     
     if (!card) {
       return res.status(404).json({ success: false, msg: "Card not found" });
@@ -131,7 +284,7 @@ export const AddCardToUserCollection = async (req: any, res: any): Promise<void>
       // Card doesn't exist, add it
       await cardCountCollection.updateOne(
         { _id: user.cards_unlocked },
-        { $push: { [card.type]: { uCard_Id: cardId, count: 1 } as any } }
+        { $push: { [card.type]: { uCard_Id: ObjectId.createFromHexString(cardId), count: 1 } as any } }
       );
     }
     
@@ -162,7 +315,7 @@ export const RemoveCardFromUserCollection = async (req: any, res: any): Promise<
     
     // Get card to determine type
     const cardCollection = await collections.cards();
-    const card = await cardCollection.findOne({ _id: new ObjectId(cardId) });
+    const card = await cardCollection.findOne({ _id: ObjectId.createFromHexString(cardId) });
     
     if (!card) {
       return res.status(404).json({ success: false, msg: "Card not found" });
@@ -192,12 +345,101 @@ export const RemoveCardFromUserCollection = async (req: any, res: any): Promise<
         { _id: user.cards_unlocked },
         { $inc: { [updatePath]: -1 } }
       );
+    } else {
+      return res.status(400).json({ success: false, msg: "You don't have this card.." });
     }
     
     return res.status(200).json({ success: true, msg: "Card removed from collection" });
     
   } catch (error) {
     console.error("RemoveCardFromUserCollection error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const Unlock4CardsByType = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { type } = req.params;
+
+    const userCollection = await collections.users();
+    const user = await userCollection.findOne({ _id: userID });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    if (parseInt(user.acorns) < 25) {
+      return res.status(400).json({ success: false, msg: "You don't have enough acorns!" });
+    }
+
+    await userCollection.updateOne(
+      { _id: userID },
+      { $inc: { acorns: -25 } }
+    );
+    
+    const cardListCollection = await collections.cardList();
+    
+    // Get card list for the specific type
+    const getTypeArray = await cardListCollection.aggregate([
+      { $project: { _id: 0, selectType: `$${type}` } },
+      { $lookup: {
+          from: "cards",
+          localField: "selectType",
+          foreignField: "_id",
+          as: "cardDetails"
+        }
+      }
+    ]).toArray();
+
+    const cardTypeList = getTypeArray[0].cardDetails;
+
+    const cardCountCollection = await collections.cardCount();
+    const result: any = [];
+
+    // Randomly select 4 cards from the pile (includes duplicates)
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * cardTypeList.length);
+      const cardInfo = cardTypeList[randomIndex];
+
+      result.push(cardInfo);
+
+      // Check if card already exists in user's collection
+      // Update the get command for every addition
+      const cardCount: any = await cardCountCollection.findOne({ _id: user.cards_unlocked });
+      const getCardArrayType = cardCount[cardInfo.type] || [];
+      const cardIndex = getCardArrayType.findIndex(
+        (item: any)  => item.uCard_Id.toString() === cardInfo._id.toString()
+      );
+    
+      if (cardIndex !== -1) {
+        // Card exists, increment count
+        const updatePath = `${cardInfo.type}.${cardIndex}.count`;
+        
+        await cardCountCollection.updateOne(
+          { _id: user.cards_unlocked },
+          { $inc: { [updatePath]: 1 } }
+        );
+      } else {
+        // Card doesn't exist, add it
+        await cardCountCollection.updateOne(
+          { _id: user.cards_unlocked },
+          { $push: { [cardInfo.type]: { uCard_Id: cardInfo._id, count: 1 } as any } }
+        );
+      }
+    }
+
+    const updatedUser: any = await userCollection.findOne({ _id: userID });
+
+    const { password, ...userData } = updatedUser;
+    return res.status(200).json({ 
+      success: true, 
+      cards: result,
+      data: userData
+    });
+    
+  } catch (error) {
+    console.error("UnlockCardsByType error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };

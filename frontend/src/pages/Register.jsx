@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react"
+import useAuthStore from "../store/authStore"
+import toast from "react-hot-toast";
 
 const Register = () => {
   const [ loginForm, setLoginForm ] = useState({
@@ -7,12 +9,54 @@ const Register = () => {
   });
 
   const [ signUpForm, setSignUpForm ] = useState({
-    firstName: "", 
-    lastName: "", 
     email: "", 
     username: "", 
     password: ""
   });
+
+  const [ pageTitle, setPageTitle ] = useState("Login");
+  const { login, signup, isLoading } = useAuthStore();
+  const toastStyle = {
+    style: {
+      border: '1px solid #713200',
+      padding: '16px',
+      color: '#713200',
+    },
+    iconTheme: {
+      primary: '#713200',
+      secondary: '#FFFAEE',
+    },
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const response = await login(loginForm.username, loginForm.password);
+    if (!response.success) {
+      toast.error(response.msg, toastStyle);
+    }
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+
+    const response = await signup(signUpForm.email, signUpForm.username, signUpForm.password);
+    if (response.success) {
+      toast.success(response.msg, toastStyle);
+
+      setPageTitle("Login");
+      setFlip(false);
+      setShowPass(false);
+
+      setSignUpForm({ email: "", username: "", password: "" })
+    } else {
+      toast.error(response.msg, toastStyle);
+    }
+  };
+
+  useEffect(() => {
+    document.title = pageTitle
+  }, [])
 
   const [showPass, setShowPass] = useState(false);
   const [flip, setFlip] = useState(false);
@@ -62,7 +106,12 @@ const Register = () => {
               </div>
 
               {/* Submit button */}
-              <button className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] text-[min(15px,75px)] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer">Submit</button>
+              <button 
+                className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] text-[min(15px,75px)] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer"
+                onClick={handleLogin}
+              >
+                  Submit
+              </button>
             </div>
 
             {/* Page #1 */}
@@ -73,7 +122,7 @@ const Register = () => {
           <div className="pointer-events-none absolute inset-0 w-full h-full bg-transparent perspective-distant transition-all transform-3d z-10">
             <div className={`pointer-events-auto h-1/2 w-full xl:w-1/2 xl:h-full absolute bottom-0 xl:right-0 max-xl:origin-top xl:origin-left max-xl:rounded-b-2xl xl:rounded-r-2xl border-1 duration-750 backface-hidden bg-[#f1bf7e] ${flip ? "max-xl:rotate-x-180 xl:-rotate-y-180" : "max-xl:rotate-x-0 xl:rotate-y-0 max-xl:hover:rotate-x-5 xl:hover:-rotate-y-5"}`} onClick={() => setFlip(true)}>
               {/* #2 Page info */}
-              <div className="h-full w-full flex items-center justify-center cursor-pointer">
+              <div className="h-full w-full flex items-center justify-center cursor-pointer" onClick={() => setPageTitle("Signup")}>
                 Go to Signup -&gt;
               </div>
 
@@ -99,7 +148,9 @@ const Register = () => {
                     Contains at least one uppercase letter
                   </div>
                 </div>
-                &lt;- Go to Login
+                <div onClick={() => setPageTitle("Login")}>
+                  &lt;- Go to Login
+                </div>
               </div>
 
               {/* Page #3 */}
@@ -112,37 +163,6 @@ const Register = () => {
             <span className="flex justify-center my-4 mx-6 py-2 px-4 rounded-full shadow-[6px_8px_6px_0px_rgba(0,0,0,0.3)] text-[1.25vw] bg-white font-bold">New User</span>
 
             <div className="h-full pb-28 flex items-center justify-center flex-col space-y-2 px-8 mt-4">
-              
-              {/* First Name and Last Name */}
-              <div className="flex flex-row space-x-4">
-                <div className="flex-col">
-                  <span className="text-[1vw]">First Name:</span>
-                  <input 
-                    type="text"
-                    className="w-full mt-1 bg-white text-[#aa6445] rounded-sm p-1 ring transition ease-in-out hover:scale-105 focus:scale-105 focus:outline-none"
-                    placeholder="Enter first"
-                    value={signUpForm.firstName}
-                    onChange={(e) => { 
-                      setSignUpForm({ ...signUpForm, firstName: e.target.value });
-                      setTimeout(() => e.target.focus(), 25);
-                  }}
-                  />
-                </div>
-
-                <div className="flex-col">
-                  <span className="text-[1vw]">Last Name:</span>
-                  <input 
-                    type="text"
-                    className="w-full mt-1 bg-white text-[#aa6445] rounded-sm p-1 ring transition ease-in-out hover:scale-105 focus:scale-105 focus:outline-none"
-                    placeholder="Enter last"
-                    value={signUpForm.lastName}
-                    onChange={(e) => { 
-                      setSignUpForm({ ...signUpForm, lastName: e.target.value });
-                      setTimeout(() => e.target.focus(), 25);
-                    }}
-                  />
-                </div>
-              </div>
 
               {/* Email */}
               <div className="w-full">
@@ -193,7 +213,12 @@ const Register = () => {
               </div>
 
               {/* Submit */}
-              <button className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer">Submit</button>
+              <button 
+                className="w-2/3 h-1/8 border-2 mt-4 border-[#aa6445] rounded-sm hover:bg-rose-300 hover:text-white active:scale-95 transition ease-in-out cursor-pointer"
+                onClick={handleSignUp}
+              >
+                Submit
+              </button>
             </div>
 
             {/* First Name and Last Name */}

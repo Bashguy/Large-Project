@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Tilt from 'react-parallax-tilt'
 import { HomeInfo } from '../constant/home';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,10 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   const [flip, setFlip] = useState({});
   const [activeLink, setActiveLink] = useState(true);
+
+  useEffect(() => {
+    document.title = "Home"
+  }, [])
 
   const changeFlip = (state, i) => {
       const updateFlip = {...flip};

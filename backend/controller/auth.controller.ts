@@ -11,8 +11,29 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
-    if (newUser.password.length < 6) {
-      return res.status(400).json({ success: false, msg: "Password must be at least 6 characters" });
+    const hasLength = newUser.password.length >= 8
+    const hasNumber = (/\d/).test(newUser.password);
+    const hasSymbol = (/[^\w\s]/).test(newUser.password);
+    const hasSpaces = (/\s/).test(newUser.password);
+    const userHasSpaces = (/\s/).test(newUser.username);
+
+    if (!hasLength) {
+      return res.status(400).json({ success: false, msg: "Password must be at least 8 characters" });
+    } else if (!hasNumber) {
+      return res.status(400).json({ success: false, msg: "Password must have digit(s)" });
+    } else if (!hasSymbol) {
+      return res.status(400).json({ success: false, msg: "Password must have special character(s)" });
+    } else if (hasSpaces) {
+      return res.status(400).json({ success: false, msg: "Password must have no spaces" });
+    } else if (userHasSpaces) {
+      return res.status(400).json({ success: false, msg: "Username must have no spaces" });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmail = emailPattern.test(newUser.email)
+
+    if (!validEmail) {
+      return res.status(400).json({ success: false, msg: "Invalid Email format" });
     }
 
     const userCollection = await collections.users();
@@ -51,6 +72,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       received: []
     });
 
+    const date = new Date();
+
     // Prepare user document
     const userDocument = {
       username: newUser.username,
@@ -62,7 +85,8 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
       loss: 0,
       acorns: 100, // Starting with 100 acorns
       trade: SetTradeList.insertedId,
-      createdAt: new Date()
+      createdAt: date,
+      updatedAt: date.setDate(date.getDate() - 1)
     };
 
     // Insert user
@@ -127,6 +151,159 @@ export const LogOut = async (req: any, res: any): Promise<void> => {
     return res.status(200).json({ success: true, msg: "Logged out successfully" });
   } catch (error) {
     console.error("LogOut error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const ChangeUsername = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { newUsername } = req.body;
+
+    if (!newUsername) {
+      return res.status(400).json({ success: false, msg: "New username is required" });
+    }
+    // Ensure new username has no spaces
+    if ((/\s/).test(newUsername)) {
+      return res.status(400).json({ success: false, msg: "Username must not contain spaces" });
+    }
+
+    const userCollection = await collections.users();
+
+    // Check if another user already has this username
+    const existingUser = await userCollection.findOne({
+      username: newUsername,
+      _id: { $ne: userID }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, msg: "Username already taken" });
+    }
+
+    const updateUserResult = await userCollection.findOneAndUpdate(
+      { _id: userID },
+      { $set: { username: newUsername } },
+      { returnDocument: 'after' }
+    );
+
+    if (!updateUserResult) {
+      return res.status(400).json({ success: false, msg: "Failed to update username" });
+    }
+
+    const { password, ...userData } = updateUserResult;
+    return res.status(200).json({ success: true, msg: "Username updated successfully", data: userData });
+
+  } catch (error) {
+    console.error("ChangeUsername error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const ChangeEmail = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { newEmail } = req.body;
+
+    if (!newEmail) {
+      return res.status(400).json({ success: false, msg: "New username is required" });
+    }
+    // Ensure new email has no spaces
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmail = emailPattern.test(newEmail)
+
+    if (!validEmail) {
+      return res.status(400).json({ success: false, msg: "Invalid Email format" });
+    }
+
+    const userCollection = await collections.users();
+
+    // Check if another user already has this username
+    const existingUser = await userCollection.findOne({
+      username: newEmail,
+      _id: { $ne: userID }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, msg: "Email already taken" });
+    }
+
+    const updateUserResult = await userCollection.findOneAndUpdate(
+      { _id: userID },
+      { $set: { email: newEmail } },
+      { returnDocument: 'after' }
+    );
+
+    if (!updateUserResult) {
+      return res.status(400).json({ success: false, msg: "Failed to update email" });
+    }
+
+    const { password, ...userData } = updateUserResult;
+    return res.status(200).json({ success: true, msg: "Email updated successfully", data: userData });
+
+  } catch (error) {
+    console.error("ChangeEmail error:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
+  }
+};
+
+export const ChangePassword = async (req: any, res: any): Promise<void> => {
+  try {
+    const userID = req.info._id;
+    const { oldPassword, newPassword } = req.body;
+    
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, msg: "Old password and new password are required" });
+    }
+
+    // Validate new password criteria
+    const hasLength = newPassword.length >= 8;
+    const hasNumber = (/\d/).test(newPassword);
+    const hasSymbol = (/[^\w\s]/).test(newPassword);
+    const hasSpaces = (/\s/).test(newPassword);
+
+    if (!hasLength) {
+      return res.status(400).json({ success: false, msg: "New password must be at least 8 characters long" });
+    }
+    if (!hasNumber) {
+      return res.status(400).json({ success: false, msg: "New password must contain at least one digit" });
+    }
+    if (!hasSymbol) {
+      return res.status(400).json({ success: false, msg: "New password must contain at least one special character" });
+    }
+    if (hasSpaces) {
+      return res.status(400).json({ success: false, msg: "New password must not contain spaces" });
+    }
+
+    const userCollection = await collections.users();
+    const user = await userCollection.findOne({ _id: userID });
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    // Compare provided old password with stored hashed password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, msg: "Old password is incorrect" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    const updateResult = await userCollection.updateOne(
+      { _id: userID },
+      { $set: { password: hashedPassword } }
+    );
+    
+    if (updateResult.modifiedCount === 1) {
+      return res.status(200).json({ success: true, msg: "Password updated successfully" });
+    } else {
+      return res.status(400).json({ success: false, msg: "Failed to update password" });
+    }
+    
+  } catch (error) {
+    console.error("ChangePassword error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 };
@@ -198,10 +375,13 @@ export const AddFriend = async (req: any, res: any): Promise<void> => {
     
     // Check if already friends
     const user = await userCollection.findOne({ _id: userID });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
     
     // Convert friend IDs to strings for comparison
     // Checks if at least one element in an array satisfies a provided condition
-    const alreadyFriends = user?.friend_list.some((friendId: any) => 
+    const alreadyFriends = user.friend_list.some((friendId: any) => 
       friendId.toString() === (friend._id).toString()
     );
     
@@ -239,16 +419,16 @@ export const RemoveFriend = async (req: any, res: any): Promise<void> => {
     }
     
     const userCollection = await collections.users();
-    
+
     // Remove friend from user's friend list
     await userCollection.updateOne(
       { _id: userID },
-      { $pull: { friend_list: friendId } }
+      { $pull: { friend_list: ObjectId.createFromHexString(friendId) as any } }
     );
     
     // Remove user from friend's friend list
     await userCollection.updateOne(
-      { _id: friendId },
+      { _id: ObjectId.createFromHexString(friendId) },
       { $pull: { friend_list: userID } }
     );
     
@@ -299,7 +479,7 @@ export const GetFriendList = async (req: any, res: any): Promise<void> => {
 export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
-    const { isWin, acornsEarned } = req.body;
+    const { isWin, acornsEarned, gameType } = req.body;
     
     if (isWin === undefined || !acornsEarned) {
       return res.status(400).json({ success: false, msg: "Game result data is required" });
@@ -310,15 +490,17 @@ export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
     // Update win/loss and acorns
     const updateData = {
       $inc: {
-        acorns: parseInt(acornsEarned), 
-        wins: (isWin) ? 1 : 0, 
-        loss: (isWin) ? 0 : 1
+        acorns: parseInt(acornsEarned, 10), // safe parsing
+        ...(gameType === 'battle' && {
+          wins: (isWin === true) ? 1 : 0, 
+          loss: (isWin === true) ? 0 : 1
+        })
       }
     };
     
     const updateResult = await userCollection.findOneAndUpdate(
-      { _id: userID },
-      updateData,
+      { _id: userID }, 
+      updateData, 
       { returnDocument: 'after' }
     );
     
