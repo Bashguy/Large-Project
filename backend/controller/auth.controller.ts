@@ -514,12 +514,12 @@ export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
       { returnDocument: 'after' }
     );
     
-    if (!updateResult?.value) {
+    if (!updateResult) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
     
     // Remove password from response
-    const { password, ...updatedUserScore } = updateResult.value;
+    const { password, ...updatedUserScore } = updateResult;
     
     return res.status(200).json({ 
       success: true, 

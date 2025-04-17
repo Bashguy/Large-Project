@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import compileRoutes from "./routes/compile.route";
 import authRoutes from "./routes/auth.route";
 import cardRoutes from "./routes/card.route";
 import { app, server } from "./lib/socket.lib";
@@ -18,6 +19,7 @@ app.use(cors({
 }));
 
 // Api routes
+app.use("/api/compile",compileRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/card", cardRoutes);
 
