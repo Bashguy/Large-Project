@@ -71,7 +71,7 @@ const Gacha = () => {
     <div className="fixed inset-0 w-full h-full select-none font-mono overflow-hidden">
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Opening */}
-        <div className={`absolute inset-0 w-full h-full flex flex-col justify-center items-center transition-all duration-300 ${selectBox && "-translate-y-[100%]"}`}>
+        <div className={`absolute inset-0 w-full h-full flex flex-col justify-center items-center transition-all duration-300 ${selectBox ? "opacity-0 -translate-y-full pointer-events-none" : "opacity-100 z-20"}`}>
           <div className="mb-10 text-6xl text-center">Choose your box!</div>
           <div className="flex flex-row space-x-10">
             <div 
@@ -101,16 +101,16 @@ const Gacha = () => {
         {/* Grass */}
         <div className={`absolute inset-0 w-full h-full overflow-hidden transition-all duration-500 ${selectBox ? "translate-y-0" : "translate-y-[100%]"}`}>
           <img src="https://freepng.pictures/get-logo.php?id=8000" alt="grass" className="absolute bottom-0 scale-150" />
-          <div className="h-full w-full flex justify-center">
-            <img src={backBox} alt="back-box" className="absolute -bottom-[30%] z-5 scale-60" />
-            <img src={frontBox} alt="front-box" className="absolute -bottom-[30%] z-10 scale-60" />
+          <div className="relative h-full w-full flex justify-center mt-[18%]">
+            <img src={backBox} alt="back-box" className="absolute bottom-0 z-5 scale-60" />
+            <img src={frontBox} alt="front-box" className="absolute bottom-0 z-10 scale-60" />
             <img 
               src={boxLid} 
               alt="lid-box" 
               onClick={openBox} 
-              className={`absolute -bottom-[30%] z-10 scale-60 cursor-pointer transition-all duration-500 ${open && "-translate-y-[100%]"}`} 
+              className={`absolute bottom-0 z-10 scale-60 cursor-pointer transition-all duration-500 ${open && "-translate-y-[100%]"}`} 
             />
-            <div className="flex flex-row items-end scale-75 space-x-10 mb-15 z-7">
+            <div className="flex flex-row items-end scale-75 space-x-10 mb-[25%] z-7">
               {visibleCards.map((card, index) => (
                 <div 
                   key={`${card.type || 'card'}-${index}`}
@@ -135,7 +135,7 @@ const Gacha = () => {
             {showContinueButton && (
               <button 
                 onClick={handleContinue}
-                className="absolute bottom-[10%] z-20 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 rounded-full text-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                className="fixed animate-pulse inset-0 z-20 h-screen w-screen text-white font-bold text-8xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
               >
                 Continue
               </button>

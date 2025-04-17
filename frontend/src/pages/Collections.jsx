@@ -42,7 +42,6 @@ const Collections = () => {
     dinner: [],
     dessert: []
   };
-  console.log(organizedCards)
 
   // If we have cards, organize them by type
   if (userCards && Array.isArray(userCards)) {
@@ -101,9 +100,10 @@ const Collections = () => {
     // If no search and no type filter (All is selected)
     if (activeType === "") {
       return types.flatMap((type) => {
-        return [...Array(countCards.total_count)].map((_, i) => {
+        return [...Array(countCards[`${type}_count`])].map((_, i) => {
           // Find a card with ID matching the position (i+1)
           const card = organizedCards[type].find(card => card.grid_id === i + 1);
+          console.log(card)
           
           return card ? (
             <Card

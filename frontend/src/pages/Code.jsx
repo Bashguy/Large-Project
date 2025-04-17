@@ -125,7 +125,7 @@ const Code = () => {
       if (!response.ok) {
         output = `Error (Status ${response.status}):\n${result.compileOutput || result.error || JSON.stringify(result)}\n\n${result.executionOutput || ''}`;
       } else {
-        addGameStats.mutate({ isWin: true, acornsEarned: 100, gameType: 'code' }, {
+        addGameStats.mutate({ isWin: true, acornsEarned: 25, gameType: 'code' }, {
           onSuccess: (data) => {
             console.log("Acorns added!")
           }

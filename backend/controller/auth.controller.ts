@@ -7,18 +7,17 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
   const newUser = req.body;
   const newUsername = newUser.username.toLowerCase();
   const newEmail = newUser.email.toLowerCase();
-  const newPassword = newUser.password.toLowerCase();
 
   try {
-    if (newUsername || newEmail || newPassword) {
+    if (newUsername || newEmail || newUser.password) {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
-    const hasLength = newPassword.length >= 8
-    const hasNumber = (/\d/).test(newPassword);
-    const hasCapital = (/[A-Z]/).test(newPassword)
-    const hasSymbol = (/[^\w\s]/).test(newPassword);
-    const hasSpaces = (/\s/).test(newPassword);
+    const hasLength = newUser.password.length >= 8
+    const hasNumber = (/\d/).test(newUser.password);
+    const hasCapital = (/[A-Z]/).test(newUser.password)
+    const hasSymbol = (/[^\w\s]/).test(newUser.password);
+    const hasSpaces = (/\s/).test(newUser.password);
     const userHasSpaces = (/\s/).test(newUsername);
 
     if (!hasLength) {
@@ -61,7 +60,7 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
+    const hashPassword = await bcrypt.hash(newUser.password, salt);
 
     // Create empty card count document
     const getCardCollection = await collections.cardCount();

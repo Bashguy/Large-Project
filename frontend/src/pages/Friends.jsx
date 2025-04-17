@@ -55,13 +55,13 @@ const ConfirmationModal = ({ isConfirmOpen, onClose, onConfirm, actionType }) =>
 
           <div className="flex justify-center space-x-4">
             <button
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-all cursor-pointer hover:scale-105"
+              className="px-4 py-2 border-2 border-white hover:bg-gray-100 text-black rounded-md transition-all cursor-pointer hover:scale-105"
               onClick={onClose}
             >
               No, go back
             </button>
             <button
-              className={`px-4 py-2 text-white rounded-md transition-all cursor-pointer hover:scale-105 ${actionType === 'accept' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+              className={`px-4 py-2 border-2 hover:text-white rounded-md transition-all cursor-pointer hover:scale-105 ${actionType === 'accept' ? 'border-green-700 hover:bg-green-600' : 'border-red-700 hover:bg-red-600'
                 }`}
               onClick={onConfirm}
             >
@@ -185,13 +185,13 @@ const Modal = ({ isOpen, onClose, status = 'sent', tradeData }) => {
             {status === 'received' ? (
               <>
                 <button
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all hover:scale-110 cursor-pointer"
+                  className="px-4 py-2 border-2 border-red-700 hover:bg-red-600 hover:text-white rounded-md transition-all hover:scale-110 cursor-pointer"
                   onClick={() => handleAction('deny')}
                 >
                   Deny
                 </button>
                 <button
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all hover:scale-110 cursor-pointer"
+                  className="px-4 py-2 border-2 border-green-700 hover:bg-green-600 hover:text-white rounded-md transition-all hover:scale-110 cursor-pointer"
                   onClick={() => handleAction('accept')}
                 >
                   Accept
@@ -199,7 +199,7 @@ const Modal = ({ isOpen, onClose, status = 'sent', tradeData }) => {
               </>
             ) : (
               <button
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all hover:scale-110 cursor-pointer"
+                className="px-4 py-2 border-2 border-red-700 hover:bg-red-600 hover:text-white rounded-md transition-all hover:scale-110 cursor-pointer"
                 onClick={() => handleAction('cancel')}
               >
                 Cancel
@@ -305,7 +305,7 @@ const TradeCreationModal = ({ isOpen, onClose, friendData }) => {
             <div>
               <label className="block text-lg font-medium mb-2">Your Card:</label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border-2 border-white rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={selectedUserCard?._id || ""}
                 onChange={handleUserCardChange}
               >
@@ -343,7 +343,7 @@ const TradeCreationModal = ({ isOpen, onClose, friendData }) => {
             <div>
               <label className="block text-lg font-medium mb-2">{friendData?.username}'s Card:</label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border-2 border-white rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={selectedFriendCard?._id || ""}
                 onChange={handleFriendCardChange}
               >
@@ -382,13 +382,13 @@ const TradeCreationModal = ({ isOpen, onClose, friendData }) => {
         {/* Modal footer with buttons */}
         <div className="p-6 border-t flex justify-center space-x-4">
           <button
-            className="px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-all hover:scale-105 cursor-pointer"
+            className="px-4 py-2 border-2 border-white rounded-md hover:bg-gray-100 transition-all cursor-pointer hover:scale-105"
             onClick={onClose}
           >
             Cancel
           </button>
           <button
-            className={`px-6 py-3 bg-blue-600 text-white rounded-md transition-all hover:scale-105 cursor-pointer ${(!selectedUserCard || !selectedFriendCard) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+            className={`px-4 py-2 border-2 border-blue-700 hover:text-white rounded-md transition-all hover:scale-105 cursor-pointer ${(!selectedUserCard || !selectedFriendCard) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
               }`}
             onClick={handleSubmitTrade}
             disabled={!selectedUserCard || !selectedFriendCard}
@@ -449,13 +449,13 @@ const UnfriendModal = ({ isOpen, onClose, friendData, onConfirm }) => {
 
           <div className="flex justify-center space-x-4">
             <button
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-all cursor-pointer hover:scale-105"
+              className="px-4 py-2 border-2 border-white rounded-md hover:bg-gray-100 transition-all cursor-pointer hover:scale-105"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all cursor-pointer hover:scale-105"
+              className="px-4 py-2 border-2 border-red-700 hover:bg-red-600 hover:text-white rounded-md transition-all cursor-pointer hover:scale-105"
               onClick={handleUnfriend}
             >
               Unfriend
