@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoutes from "./routes/auth.route";
 import cardRoutes from "./routes/card.route";
+import compileRoutes from "./routes/compile.route";
 import { app, server } from "./lib/socket.lib";
 import { getCollection } from "./lib/mongo.lib";
 
@@ -16,7 +17,7 @@ app.use(cors({
     origin: "http://localhost:3000", 
     credentials: true
 }));
-
+app.use("/api/compile",compileRoutes);
 // Api routes
 app.use("/api/auth", authRoutes);
 app.use("/api/card", cardRoutes);
