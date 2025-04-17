@@ -103,7 +103,6 @@ const Collections = () => {
         return [...Array(countCards[`${type}_count`])].map((_, i) => {
           // Find a card with ID matching the position (i+1)
           const card = organizedCards[type].find(card => card.grid_id === i + 1);
-          console.log(card)
           
           return card ? (
             <Card
