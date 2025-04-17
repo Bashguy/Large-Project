@@ -79,11 +79,19 @@ export const useUpdateGameStats = () => {
   return useMutation({
     mutationFn: async (data) => {
       const response = await authApi.updateGameStats(data);
+      
+      if (response.success) {
+        toast.success(response.msg, toastStyle);
+      } else {
+        toast.error(response.msg, toastStyle);
+      }
       return response;
     },
     onSuccess: (data) => {
-      setUser(data.data);
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+      if (data.success) {
+        setUser(data.data);
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+      }
     }
   });
 };

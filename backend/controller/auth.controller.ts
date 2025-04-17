@@ -42,15 +42,15 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
     }
 
     const userCollection = await collections.users();
-    
+
     // Check if user already exists
-    const userExists = await userCollection.findOne({ 
+    const userExists = await userCollection.findOne({
       $or: [
         { email: newEmail },
         { username: newUsername }
       ]
     });
-    
+
     if (userExists) {
       if (userExists.email === newUser.email) {
         return res.status(400).json({ success: false, msg: "Email already exists" });
@@ -100,9 +100,9 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
     if (result.insertedId) {
       // Return user data without password
       const { password, ...userData } = userDocument;
-      
-      return res.status(201).json({ 
-        success: true, 
+
+      return res.status(201).json({
+        success: true,
         msg: "Account created successfully",
         data: userData
       });
@@ -118,14 +118,14 @@ export const SignUp = async (req: any, res: any): Promise<void> => {
 export const LogIn = async (req: any, res: any): Promise<void> => {
   const currUser = req.body;
   const currUsername = currUser.username.toLowerCase();
-  
+
   try {
     if (!currUsername || !currUser.password) {
       return res.status(400).json({ success: false, msg: "All fields are required" });
     }
 
     const userCollection = await collections.users();
-    
+
     // Find user
     const userExists = await userCollection.findOne({ username: currUsername });
 
@@ -137,7 +137,7 @@ export const LogIn = async (req: any, res: any): Promise<void> => {
 
         // Don't include password in response
         const { password, ...userData } = userExists;
-        
+
         return res.status(200).json({ success: true, data: userData });
       } else {
         return res.status(400).json({ success: false, msg: "Invalid credentials" });
@@ -258,7 +258,7 @@ export const ChangePassword = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const { oldPassword, newPassword } = req.body;
-    
+
     if (!oldPassword || !newPassword) {
       return res.status(400).json({ success: false, msg: "Old password and new password are required" });
     }
@@ -298,18 +298,18 @@ export const ChangePassword = async (req: any, res: any): Promise<void> => {
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    
+
     const updateResult = await userCollection.updateOne(
       { _id: userID },
       { $set: { password: hashedPassword } }
     );
-    
+
     if (updateResult.modifiedCount === 1) {
       return res.status(200).json({ success: true, msg: "Password updated successfully" });
     } else {
       return res.status(400).json({ success: false, msg: "Failed to update password" });
     }
-    
+
   } catch (error) {
     console.error("ChangePassword error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
@@ -328,26 +328,26 @@ export const CheckAuth = (req: any, res: any) => {
 export const DeleteAccount = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
-    
+
     const userCollection = await collections.users();
-    
+
     // Find the user first to get related document IDs
     const user = await userCollection.findOne({ _id: userID });
-    
+
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
-    
+
     // Delete related documents
     const cardCountCollection = await collections.cardCount();
     await cardCountCollection.deleteOne({ _id: user.cards_unlocked });
-    
+
     const tradeListCollection = await collections.tradeList();
     await tradeListCollection.deleteOne({ _id: user.trade });
-    
+
     // Delete the user
     const deleteResult = await userCollection.deleteOne({ _id: userID });
-    
+
     if (deleteResult.deletedCount === 1) {
       // Clear auth cookie
       res.cookie("token", "", { maxAge: 0 });
@@ -367,33 +367,33 @@ export const AddFriend = async (req: any, res: any): Promise<void> => {
     const userNa = req.info.username;
     const { friendUsername } = req.body;
     const friendNa = friendUsername.toLowerCase();
-    
+
     if (!friendNa) {
       return res.status(400).json({ success: false, msg: "Friend username is required" });
     }
 
     if (userNa === friendNa) return res.status(400).json({ success: false, msg: "You cannot friend yourself" });
-    
+
     const userCollection = await collections.users();
-    
+
     // Find the friend
     const friend = await userCollection.findOne({ username: friendNa });
     if (!friend) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
-    
+
     // Check if already friends
     const user = await userCollection.findOne({ _id: userID });
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
-    
+
     // Convert friend IDs to strings for comparison
     // Checks if at least one element in an array satisfies a provided condition
-    const alreadyFriends = user.friend_list.some((friendId: any) => 
+    const alreadyFriends = user.friend_list.some((friendId: any) =>
       friendId.toString() === (friend._id).toString()
     );
-    
+
     if (alreadyFriends) {
       return res.status(400).json({ success: false, msg: "Already friends with this user" });
     }
@@ -403,15 +403,15 @@ export const AddFriend = async (req: any, res: any): Promise<void> => {
       { _id: userID },
       { $push: { friend_list: friend._id as any } }
     );
-    
+
     // Add user to friend's friend list - use array to satisfy TypeScript
     await userCollection.updateOne(
       { _id: friend._id as any },
       { $push: { friend_list: userID } }
     );
-    
+
     return res.status(200).json({ success: true, msg: "Friend added successfully" });
-    
+
   } catch (error) {
     console.error("AddFriend error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
@@ -422,11 +422,11 @@ export const RemoveFriend = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const { friendId } = req.params;
-    
+
     if (!friendId) {
       return res.status(400).json({ success: false, msg: "Friend ID is required" });
     }
-    
+
     const userCollection = await collections.users();
 
     // Remove friend from user's friend list
@@ -434,15 +434,15 @@ export const RemoveFriend = async (req: any, res: any): Promise<void> => {
       { _id: userID },
       { $pull: { friend_list: ObjectId.createFromHexString(friendId) as any } }
     );
-    
+
     // Remove user from friend's friend list
     await userCollection.updateOne(
       { _id: ObjectId.createFromHexString(friendId) },
       { $pull: { friend_list: userID } }
     );
-    
+
     return res.status(200).json({ success: true, msg: "Friend removed successfully" });
-    
+
   } catch (error) {
     console.error("RemoveFriend error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
@@ -453,18 +453,20 @@ export const GetFriendList = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const userCollection = await collections.users();
-    
+
     // Use aggregation to get populated friend list
     const result = await userCollection.aggregate([
       { $match: { _id: userID } },
-      { $lookup: {
+      {
+        $lookup: {
           from: "users",
           localField: "friend_list",
           foreignField: "_id",
           as: "friends"
         }
       },
-      { $project: {
+      {
+        $project: {
           "friends._id": 1,
           "friends.username": 1,
           "friends.wins": 1,
@@ -472,13 +474,13 @@ export const GetFriendList = async (req: any, res: any): Promise<void> => {
         }
       }
     ]).toArray();
-    
+
     if (result.length === 0) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
-    
+
     return res.status(200).json({ success: true, data: result[0].friends });
-    
+
   } catch (error) {
     console.error("GetFriendList error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
@@ -489,43 +491,66 @@ export const UpdateGameStats = async (req: any, res: any): Promise<void> => {
   try {
     const userID = req.info._id;
     const { isWin, acornsEarned, gameType } = req.body;
-    
+
     if (isWin === undefined || !acornsEarned) {
       return res.status(400).json({ success: false, msg: "Game result data is required" });
     }
-    
+
     const userCollection = await collections.users();
-    
+
+    const user = await userCollection.findOne({ _id: userID });
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    if (user.updatedAt) {
+      const lastUpdatedDate = new Date(user.updatedAt);
+      const currentDate = new Date();
+
+      // Check if it's the same day
+      if (
+        lastUpdatedDate.getUTCFullYear() === currentDate.getUTCFullYear() &&
+        lastUpdatedDate.getUTCMonth() === currentDate.getUTCMonth() &&
+        lastUpdatedDate.getUTCDate() === currentDate.getUTCDate()
+      ) {
+        return res.status(400).json({ success: false, msg: "Wait until the nex day" });
+      }
+    }
+
     // Update win/loss and acorns
     const updateData = {
       $inc: {
-        acorns: parseInt(acornsEarned, 10), // safe parsing
+        acorns: 100,
         ...(gameType === 'battle' && {
-          wins: (isWin === true) ? 1 : 0, 
+          wins: (isWin === true) ? 1 : 0,
           loss: (isWin === true) ? 0 : 1
         })
+      },
+      $set: { 
+        updatedAt: Date.now() 
       }
     };
-    
+
     const updateResult = await userCollection.findOneAndUpdate(
-      { _id: userID }, 
-      updateData, 
+      { _id: userID },
+      updateData,
       { returnDocument: 'after' }
     );
-    
+
     if (!updateResult) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
-    
+
     // Remove password from response
     const { password, ...updatedUserScore } = updateResult;
-    
-    return res.status(200).json({ 
-      success: true, 
+
+    return res.status(200).json({
+      success: true,
       msg: "Game stats updated",
       data: updatedUserScore
     });
-    
+
   } catch (error) {
     console.error("UpdateGameStats error:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
