@@ -1,0 +1,211 @@
+[33mcommit 26198fd054a6d0f718e40ee4abd42097eb58b0b1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Shoe[m[33m, [m[1;32mShoe[m[33m)[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 17 13:22:45 2025 -0400
+
+    fixed bugs, added better gacha mechanic, tweaked UI design
+
+[33mcommit 45ad609a8c0d34740a1fa38364c9d67a3f8fcc2f[m
+Merge: fc74b52 9df6881
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 17 04:56:27 2025 -0400
+
+    Merge branch 'main' into Shoe
+
+[33mcommit fc74b52b6667b259873a43b2535bb89f5ca994ef[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 17 04:55:32 2025 -0400
+
+    coding page + acorn addition
+
+[33mcommit 2a00ca0859a20a009f9b2b678214aaf3a1d8f6f4[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 17 04:25:00 2025 -0400
+
+    register design and fixed bugs
+
+[33mcommit 9df6881822e83e0787243f51482e3f2dc7cee1c5[m
+Merge: 05e444c 96deec2
+Author: LucasFavarao <124338066+LucasFavarao@users.noreply.github.com>
+Date:   Thu Apr 17 02:01:48 2025 -0400
+
+    Merge pull request #3 from Bashguy/Coding-Page
+    
+    Coding page
+
+[33mcommit 96deec28a4e6c3d709084e0fcdf7201a1614751e[m[33m ([m[1;31morigin/Coding-Page[m[33m)[m
+Merge: 2a5766a 05e444c
+Author: LucasFavarao <Lucas.Favarao6@gmail.com>
+Date:   Thu Apr 17 01:53:57 2025 -0400
+
+    Merge branch 'main' into Coding-Page
+
+[33mcommit 05e444c62408cd7a4a8d42ceb967bf660fae6ba3[m
+Author: LucasFavarao <Lucas.Favarao6@gmail.com>
+Date:   Thu Apr 17 01:19:09 2025 -0400
+
+    Port fix
+
+[33mcommit 2a5766a8172de453a16b3d7eaf146622973cffca[m
+Author: LucasFavarao <Lucas.Favarao6@gmail.com>
+Date:   Thu Apr 17 01:10:23 2025 -0400
+
+    Port fix
+
+[33mcommit d2b029e9f2b5dfa6ba536d01025f6d800ba96b19[m
+Author: Artful-Donut <lynne.nguyen@gmail.com>
+Date:   Wed Apr 16 22:53:55 2025 -0400
+
+    changed battle message to be something normal ig idk
+
+[33mcommit 6951fdda85d567b9909696b278c02094881948d9[m
+Merge: 7d3632a 1f2a96d
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 16 21:00:44 2025 -0400
+
+    Merge branch 'main' into Shoe
+
+[33mcommit 1f2a96d246a51bf928d2a582379280cef3f5dce2[m
+Merge: 6004302 3ac9191
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 16 20:59:39 2025 -0400
+
+    Merge branch 'main' of https://github.com/Bashguy/Large-Project
+
+[33mcommit 7d3632ac5ad38737178e9012c8d621850539a62a[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 16 18:36:54 2025 -0400
+
+    able to create card + fixed bugs
+
+[33mcommit fccd73999c2ef2dd6c6bad401920ab6b93ceeaf4[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Tue Apr 15 14:58:35 2025 -0400
+
+    got register and collection working
+
+[33mcommit 9b223c668396fdfc661fc5d9ff353775aa5e3cbb[m
+Author: LucasFavarao <Lucas.Favarao6@gmail.com>
+Date:   Tue Apr 15 02:40:51 2025 -0400
+
+    Coding Page finished, just need to implement with server
+
+[33mcommit 05a74dfe38ae9bac95fb14298715941c092d609d[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Mon Apr 14 14:15:56 2025 -0400
+
+    added title and collections
+
+[33mcommit 3ac919182732f1a2497938c732e939a8162220e6[m
+Author: Artful-Donut <lynne.nguyen@gmail.com>
+Date:   Sat Apr 12 02:02:46 2025 -0400
+
+    added the gacha image assets
+
+[33mcommit 60043021a1edf61a1cbfb0aad2cbdb65b07bd474[m
+Merge: 888c385 4df247c
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 10 03:05:55 2025 -0400
+
+    Merge branch 'main' of https://github.com/Bashguy/Large-Project
+
+[33mcommit 888c3855653589b69a4ad3c2df97bb86255aa458[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 10 02:53:38 2025 -0400
+
+    acorn support
+
+[33mcommit 2bffe99e33c9bad339c81d50ef363dbb3eb68099[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Apr 10 02:20:05 2025 -0400
+
+    tuned backend
+
+[33mcommit 4df247cac2b8e5789959ab82a068c545c0f68bec[m
+Author: Bashguy <ssjsameer9000@gmail.com>
+Date:   Wed Apr 9 19:56:55 2025 -0400
+
+    login
+
+[33mcommit a5644626793892c74a45d30dede07b1cdbc33859[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 9 19:17:02 2025 -0400
+
+    removed mongoose
+
+[33mcommit 65bec317e1503006c369438abe71d37521f76d6c[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 9 19:11:54 2025 -0400
+
+    able to connect via frontend and backend I think?
+
+[33mcommit 4ebdf894fb2782a6e6dd33c99894357187254d15[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Apr 9 14:52:50 2025 -0400
+
+    big changes in backend
+
+[33mcommit d0218cec7f88c09c1caa8b1ee781124b69d280bd[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Mon Apr 7 18:36:45 2025 -0400
+
+    initialized tsconfig
+
+[33mcommit 8c06c36dca2c72d72b3c12d89f3d8f7543eab087[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Mon Apr 7 17:31:32 2025 -0400
+
+    silly additions in backend
+
+[33mcommit cb4d90d6a4fd81381ba23124411ea0f15a5435b0[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Tue Apr 1 12:13:17 2025 -0400
+
+    Added weather
+
+[33mcommit 55f8aab32f324fbe89bc159dd7659f26bf2d164f[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Sun Mar 30 11:10:01 2025 -0400
+
+    saving stuff
+
+[33mcommit 680a412a461aa93f0ec8d82e049471e8782e0232[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Mar 27 23:51:58 2025 -0400
+
+    added pages and extra dependencies
+
+[33mcommit 51f3d48cf1784f3aae5796ad9acbeace450db53f[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Thu Mar 27 04:14:47 2025 -0400
+
+    added some stuff
+
+[33mcommit f5c32707b821c3fd69c4236d986cd460ac3e512a[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Mar 19 17:45:09 2025 -0400
+
+    texting
+
+[33mcommit fc32a8024755983cdc52a67db3ddd492ce56bf20[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Wed Mar 19 17:10:58 2025 -0400
+
+    added Tailwind
+
+[33mcommit 91532a2fe4ed89797d5a34238fdc921e0befeab0[m[33m ([m[1;31morigin/Jellyfish[m[33m)[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Mon Mar 10 19:08:25 2025 -0400
+
+    added cloudinary dependency
+
+[33mcommit 18392db5af80dfa140629e8780c284e6dd44fabc[m
+Author: Fardin Rahman <rahmanfardin2013@gmail.com>
+Date:   Mon Mar 10 18:40:23 2025 -0400
+
+    boilerplate :3
+
+[33mcommit 7b17a2438017bd020073c8f4e5b99a750f85aa54[m
+Author: Sameer Bashir <137328582+Bashguy@users.noreply.github.com>
+Date:   Mon Mar 10 17:42:19 2025 -0400
+
+    Initial commit
